@@ -86,7 +86,7 @@ void UART4_IRQHandler(void)
           new_uart_msg = 1;
                 for(x=0; x<= rx_counter; x++)	//copy each character in the rx_buffer to the uart_msg variable
                     uart_msg[x] = rx_buffer[x];
-                uart_msg[x] = '\0';			//terminate with NULL character
+                uart_msg[x] = '';			//terminate with NULL character
 
           memset(rx_buffer, 0, RX_BUFFER_LENGTH);		//clear rx_buffer
           rx_counter = 0;
