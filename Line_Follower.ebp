@@ -92,6 +92,7 @@
 		<Unit filename="cmsis\core_cmFunc.h" />
 		<Unit filename="cmsis\core_cmInstr.h" />
 		<Unit filename="inc\charset.h" />
+		<Unit filename="inc\FIFO.h" />
 		<Unit filename="inc\flash.h" />
 		<Unit filename="inc\lcd.h" />
 		<Unit filename="inc\MotorControl.h" />
@@ -186,6 +187,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="SPL\src\stm32f30x_wwdg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\FIFO.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\flash.c">

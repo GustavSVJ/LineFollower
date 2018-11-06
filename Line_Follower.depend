@@ -205,8 +205,10 @@
 
 1541494377 c:\users\gusta\documents\github\linefollower\inc\charset.h
 
-1541509910 source:c:\users\gusta\documents\github\linefollower\src\motorcontrol.c
+1541519878 source:c:\users\gusta\documents\github\linefollower\src\motorcontrol.c
 	"stm32f30x_conf.h"
+	"Uart.h"
+	"FIFO.h"
 
 1541494377 source:c:\users\gusta\documents\github\linefollower\src\startup_stm32f30x.s
 
@@ -220,11 +222,18 @@
 	"stm32f30x_conf.h"
 	<stdio.h>
 
-1541510385 source:c:\users\gusta\documents\github\linefollower\src\main.c
+1541520048 source:c:\users\gusta\documents\github\linefollower\src\main.c
 	"stm32f30x_conf.h"
 	"Uart.h"
 	"lcd.h"
 	"MotorControl.h"
 
-1541510309 c:\users\gusta\documents\github\linefollower\inc\motorcontrol.h
+1541522093 c:\users\gusta\documents\github\linefollower\inc\motorcontrol.h
+	"stm32f30x_conf.h"
+
+1541522448 source:c:\users\gusta\documents\github\linefollower\src\fifo.c
+	"FIFO.h"
+
+1541522526 c:\users\gusta\documents\github\linefollower\inc\fifo.h
+	"MotorControl.h"
 

@@ -1,4 +1,34 @@
+#include "MotorControl.h"
 #include "stm32f30x_conf.h" // STM32 config
+#include "Uart.h"
+#include "FIFO.h"
+
+#define MOVEMENT_QUEUE_LENGTH 100
+
+move_t movementData[MOVEMENT_QUEUE_LENGTH];
+fifo_t movements;
+
+void InitializeMotors(){
+    fifo_init(&movements, movementData, MOVEMENT_QUEUE_LENGTH);
+
+    InitializeMotorTimer(63999, 9);
+    InitializeLeftMotor();
+    InitializeRightMotor();
+
+    InitializeLeftMotorEncoder();
+    InitializeRightMotorEncoder();
+}
+
+char MoveTo(move_t *directions){
+    if (fifo_size(&movements) != 0){
+        return fifo_write(&movements, *directions);
+    }
+    else {
+
+        fifo_write(&movements, *directions);
+    return 1;
+    }
+}
 
 void InitializeMotorTimer(int topValue, int prescaler)
 {
@@ -100,6 +130,54 @@ void DisableRightMotorEncoder(){
     NVIC_DisableIRQ(EXTI4_IRQn);
 }
 
+void EXTI4_IRQHandler(void){
+    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Check if interrupt flag is set
+        printf("I was interrupted!\n");
+        EXTI_ClearITPendingBit(EXTI_Line4); //Clear interrupt flag
+	}
+}
 
+void InitializeLeftMotorEncoder()
+{
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
 
+    GPIO_InitTypeDef gpioStructure;
+    gpioStructure.GPIO_Pin = GPIO_Pin_5;
+    gpioStructure.GPIO_Mode = GPIO_Mode_IN;
+    gpioStructure.GPIO_OType = GPIO_OType_PP;
+    gpioStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOB, &gpioStructure);
+
+    RCC_APB2PeriphClockCmd(RCC_APB2ENR_SYSCFGEN, ENABLE);
+
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource5);
+
+    EXTI_InitTypeDef extiStructure;
+    extiStructure.EXTI_Line = EXTI_Line5;
+    extiStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    extiStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    EXTI_Init(&extiStructure);
+
+    NVIC_InitTypeDef nvicStructure;
+    nvicStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+    nvicStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+    nvicStructure.NVIC_IRQChannelSubPriority = 0x00;
+    NVIC_Init(&nvicStructure);
+}
+
+void EnableLeftMotorEncoder(){
+    NVIC_EnableIRQ(EXTI9_5_IRQn);
+}
+
+void DisableLeftMotorEncoder(){
+    NVIC_DisableIRQ(EXTI9_5_IRQn);
+}
+
+void EXTI9_5_IRQHandler(void){
+    if (EXTI_GetITStatus(EXTI_Line5) != RESET) { //Check if interrupt flag is set
+        printf("I was interrupted!\n");
+        EXTI_ClearITPendingBit(EXTI_Line5); //Clear interrupt flag
+	}
+}
 

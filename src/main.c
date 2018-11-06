@@ -10,6 +10,15 @@ int main(void){
     SetDutycycleLeftMotor(15000);
     SetDutycycleRightMotor(32000);
 
+    init_usb_uart(2000000);
+
+    InitializeRightMotorEncoder();
+    EnableRightMotorEncoder();
+
+    InitializeLeftMotorEncoder();
+    EnableLeftMotorEncoder();
+
+
 
     while(1){
     }
