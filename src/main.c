@@ -2,7 +2,7 @@
 #include "Uart.h"
 #include "lcd.h"
 
-void InitializeUSART();
+void UART1_init();
 
 int main(void){
 
@@ -17,31 +17,22 @@ int main(void){
     return 0;
 }
 
-void InitializeUSART()
+void UART1_init()
     {
-        USART_InitTypeDef usartConfig;
+        USART_InitTypeDef USART_initStructure;
 
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
-        USART_Cmd(USART1, ENABLE);
+        //Enable GPIO clock
+        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
-        usartConfig.USART_BaudRate = 9600;
-        usartConfig.USART_WordLength = USART_WordLength_8b;
-        usartConfig.USART_StopBits = USART_StopBits_1;
-        usartConfig.USART_Parity = USART_Parity_No;
-        usartConfig.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-        usartConfig.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-        USART_Init(USART1, &usartConfig);
+        //Enable USART clock
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
-        GPIO_InitTypeDef gpioConfig;
-
-        //PA9 = USART1.TX => Alternative Function Output
-        gpioConfig.GPIO_Mode = GPIO_Mode_AF_PP;
-        gpioConfig.GPIO_Pin = GPIO_Pin_9;
-        gpioConfig.GPIO_Speed = GPIO_Speed_2MHz;
-        GPIO_Init(GPIOA, &gpioConfig);
-
-        //PA10 = USART1.RX => Input
-        gpioConfig.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-        gpioConfig.GPIO_Pin = GPIO_Pin_10;
-        GPIO_Init(GPIOA, &gpioConfig);
+        //UART configuration
+        USART_initStructure.USART_BaudRate              = 115200;
+        USART_initStructure.USART_WordLength            = USART_WordLength_8b;
+        USART_initStructure.USART_StopBits              = USART_StopBits_1;
+        USART_initStructure.USART_Parity                = USART_Parity_No;
+        USART_initStructure.USART_HardwareFlowControl   = USART_HardwareFlowControl_None;
+        USART_initStructure.USART_Mode                  = USART_Mode_Rx | USART_Mode_Tx;
+        USART_Init(UART1, &USART_initStructure);
     }
