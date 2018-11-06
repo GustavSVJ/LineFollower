@@ -62,3 +62,44 @@ void SetDutycycleRightMotor(int dutycycle)
 
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_1);
 }
+
+void InitializeRightMotorEncoder()
+{
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+
+    GPIO_InitTypeDef gpioStructure;
+    gpioStructure.GPIO_Pin = GPIO_Pin_4;
+    gpioStructure.GPIO_Mode = GPIO_Mode_IN;
+    gpioStructure.GPIO_OType = GPIO_OType_PP;
+    gpioStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOB, &gpioStructure);
+
+    RCC_APB2PeriphClockCmd(RCC_APB2ENR_SYSCFGEN, ENABLE);
+
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
+
+    EXTI_InitTypeDef extiStructure;
+    extiStructure.EXTI_Line = EXTI_Line4;
+    extiStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    extiStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    EXTI_Init(&extiStructure);
+
+    NVIC_InitTypeDef nvicStructure;
+    nvicStructure.NVIC_IRQChannel = EXTI4_IRQn;
+    nvicStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+    nvicStructure.NVIC_IRQChannelSubPriority = 0x00;
+    NVIC_Init(&nvicStructure);
+}
+
+void EnableRightMotorEncoder(){
+    NVIC_EnableIRQ(EXTI4_IRQn);
+}
+
+void DisableRightMotorEncoder(){
+    NVIC_DisableIRQ(EXTI4_IRQn);
+}
+
+
+
+
