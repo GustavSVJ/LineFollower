@@ -91,6 +91,7 @@
 		<Unit filename="cmsis\core_cm4_simd.h" />
 		<Unit filename="cmsis\core_cmFunc.h" />
 		<Unit filename="cmsis\core_cmInstr.h" />
+		<Unit filename="inc\30021_io.h" />
 		<Unit filename="inc\charset.h" />
 		<Unit filename="inc\flash.h" />
 		<Unit filename="inc\lcd.h" />
@@ -187,10 +188,10 @@
 		<Unit filename="SPL\src\stm32f30x_wwdg.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\flash.c">
+		<Unit filename="src\30021_io.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\lcd.c">
+		<Unit filename="src\flash.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\main.c">

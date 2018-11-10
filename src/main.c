@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stm32f30x_usart.h>
 #include <stm32f30x_misc.h>
+#include <30021_io.h>
 
 #define RX_BUFFER_LENGTH	40			//maximum number of characters to hold in the receive buffer
 
@@ -98,20 +99,8 @@ void UART4_IRQHandler(void)
     }
 }
 
-void uart_putc(uint8_t c) {
-    USART_SendData(UART4, (uint8_t)c);
-    while(USART_GetFlagStatus(UART4, USART_FLAG_TXE)  == RESET){}
-}
 
-uint8_t uart_getc() {
-    while(USART_GetFlagStatus(UART4, USART_FLAG_RXNE) == RESET){};
-    uint8_t c = (uint8_t)USART_ReceiveData(UART4);
-
-    if (c != 0x0D) { uart_putc(c); }
-
-    return c;
-}
-
+/*********************************************************************************/
 int main(void)
 {
 	UART4_Init(115200);		//initialize the UART4 module at 115200 baud
