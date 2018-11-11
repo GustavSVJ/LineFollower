@@ -45,11 +45,11 @@ void USARTx_Init(uint32_t speed)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* Configure USART Rx as alternate function push-pull */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* Connect PXx to USARTx_Tx */
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_5);
@@ -102,12 +102,13 @@ void USARTx_IRQHandler(void)
 int main(void)
 {
 	USARTx_Init(115200);		//initialize the UART4 module at 115200 baud
+//    init_usb_uart(9600);
+    printf("test");
 
     while(1)
     {
-        USART_SendData(USART1, 0xFF);
-        USART_ReceiveData(USART1);
         printf("test");
+        USART_SendData(USART1, 0x55);
     }
 
     return 0;
