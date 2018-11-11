@@ -9,26 +9,26 @@
 
 #define RX_BUFFER_LENGTH	40			//maximum number of characters to hold in the receive buffer
 
-void UART4_Init(uint32_t speed);
+//void USART_Init(uint32_t speed);
 void Delay(unsigned int);
-void UART4_IRQHandler(void);
+void USART1_IRQHandler(void);
 
 uint8_t rx_buffer[RX_BUFFER_LENGTH];	//used by the IRQ handler
 uint8_t rx_counter = 0; 				//used by the IRQ handler
 uint8_t uart_msg[RX_BUFFER_LENGTH];		//variable that contains the latest string received on the RX pin
 uint8_t new_uart_msg = 0;				//flag variable to indicate if there is a new message to be serviced
 
-void UART4_Init(uint32_t speed){
-
+void USARTx_Init(uint32_t speed)
+{
 	USART_InitTypeDef USART_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	/* Enable GPIO clock */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
 	/* Enable USART clock */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
 	/* USART configuration */
 	USART_InitStructure.USART_BaudRate = speed;
@@ -37,10 +37,10 @@ void UART4_Init(uint32_t speed){
 	USART_InitStructure.USART_Parity = USART_Parity_No;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-	USART_Init(UART4, &USART_InitStructure);
+	USART_Init(USART1, &USART_InitStructure);
 
 	/* Configure USART Tx as alternate function push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -48,38 +48,38 @@ void UART4_Init(uint32_t speed){
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/* Configure USART Rx as alternate function push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/* Connect PXx to USARTx_Tx */
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_5);
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_5);
 
 	/* Connect PXx to USARTx_Rx */
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_5);
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_5);
 
 	/* Enable USART */
-	USART_Cmd(UART4, ENABLE);
+	USART_Cmd(USART1, ENABLE);
 
 	/* Enable the UART4 Receive interrupt: this interrupt is generated when the
     UART4 receive data register is not empty */
-	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 
 	/* Enable the USART4 Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
 
-void UART4_IRQHandler(void)
+void USARTx_IRQHandler(void)
 {
     int x;
 
-    if(USART_GetITStatus(UART4, USART_IT_RXNE) != RESET)
+    if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
     {
         /* Read one byte from the receive data register */
-        rx_buffer[rx_counter] = USART_ReceiveData(UART4); //(USART_ReceiveData(UART4) & 0x7F);
+        rx_buffer[rx_counter] = USART_ReceiveData(USART1); //(USART_ReceiveData(UART4) & 0x7F);
 
         /* if the last character received is the NEWLINE ('\n') or LF ('\r') character OR if the RX_BUFFER_LENGTH (40) value has been reached ...*/
         if(rx_counter + 1 == RX_BUFFER_LENGTH || rx_buffer[rx_counter] == '\n' || rx_buffer[rx_counter] == '\r')
@@ -98,19 +98,17 @@ void UART4_IRQHandler(void)
         }
     }
 }
-
-
 /*********************************************************************************/
 int main(void)
 {
-	UART4_Init(115200);		//initialize the UART4 module at 115200 baud
+	USARTx_Init(115200);		//initialize the UART4 module at 115200 baud
 
     while(1)
     {
-
+        USART_SendData(USART1, 0xFF);
+        USART_ReceiveData(USART1);
+        printf("test");
     }
 
     return 0;
-
-
 }

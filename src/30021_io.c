@@ -4,8 +4,8 @@
 /*** USB Serial Functions ***/
 /****************************/
 void uart_putc(uint8_t c) {
-    USART_SendData(UART4, (uint8_t)c);
-    while(USART_GetFlagStatus(UART4, USART_FLAG_TXE)  == RESET){}
+    USART_SendData(USART2, (uint8_t)c);
+    while(USART_GetFlagStatus(USART2, USART_FLAG_TXE)  == RESET){}
 }
 
 uint8_t uart_getc() {
