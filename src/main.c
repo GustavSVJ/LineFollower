@@ -5,18 +5,15 @@
 
 int main(void){
     InitializeLeftMotor();
-    InitializeRightMotor();
-    InitializeMotorTimer(63999, 9);
-    SetDutycycleLeftMotor(15000);
-    SetDutycycleRightMotor(32000);
+
+    InitializeMotorTimer(800, 1);
 
     init_usb_uart(2000000);
 
-    InitializeRightMotorEncoder();
-    EnableRightMotorEncoder();
-
     InitializeLeftMotorEncoder();
     EnableLeftMotorEncoder();
+
+    SetDutycycleLeftMotor(300);
 
 
 

@@ -9,6 +9,13 @@ typedef struct {
     uint32_t speed;
 } move_t;
 
+typedef struct {
+    int leftTurnSteps;
+    int rightTurnSteps;
+    int straightSteps;
+    int speed;
+} MoveSteps;
+
 extern void InitializeMotorTimer(int topValue, int prescaler);
 
 extern void InitializeLeftMotor();

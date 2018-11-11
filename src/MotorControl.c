@@ -2,11 +2,24 @@
 #include "stm32f30x_conf.h" // STM32 config
 #include "Uart.h"
 #include "FIFO.h"
+#include "math.h"
 
 #define MOVEMENT_QUEUE_LENGTH 100
 
-move_t movementData[MOVEMENT_QUEUE_LENGTH];
+#define CM_PER_STEP 0.4684831150
+#define DEGRESS_PER_STEP 3.35526315812505
+
+
+MoveSteps movementData[MOVEMENT_QUEUE_LENGTH];
 fifo_t movements;
+
+volatile int leftMotorPulseCounter = 0;
+volatile int leftMotorGoal = 57;
+
+
+int ConvertToSteps(move_t *directions);
+
+
 
 void InitializeMotors(){
     fifo_init(&movements, movementData, MOVEMENT_QUEUE_LENGTH);
@@ -21,13 +34,39 @@ void InitializeMotors(){
 
 char MoveTo(move_t *directions){
     if (fifo_size(&movements) != 0){
-        return fifo_write(&movements, *directions);
+        if (ConvertToSteps(directions)) return 1;
+        return 0;
     }
     else {
+        if (ConvertToSteps(directions)) return 1;
 
-        fifo_write(&movements, *directions);
+
+
     return 1;
     }
+}
+
+int ConvertToSteps(move_t *directions){
+    MoveSteps newMovement;
+    float distance = directions->distance;
+    float angle = directions->angle;
+
+    newMovement.straightSteps = round(distance / CM_PER_STEP);
+
+    if (angle < 0){
+        newMovement.rightTurnSteps = round(angle / DEGRESS_PER_STEP);
+        newMovement.leftTurnSteps = 0;
+    }
+    else if (angle > 0){
+        newMovement.leftTurnSteps = round(angle / DEGRESS_PER_STEP);
+        newMovement.rightTurnSteps = 0;
+    }
+    else{
+        newMovement.leftTurnSteps = 0;
+        newMovement.rightTurnSteps = 0;
+    }
+
+    return fifo_write(&movements, newMovement);
 }
 
 void InitializeMotorTimer(int topValue, int prescaler)
@@ -176,8 +215,16 @@ void DisableLeftMotorEncoder(){
 
 void EXTI9_5_IRQHandler(void){
     if (EXTI_GetITStatus(EXTI_Line5) != RESET) { //Check if interrupt flag is set
-        printf("I was interrupted!\n");
         EXTI_ClearITPendingBit(EXTI_Line5); //Clear interrupt flag
+        printf("Pulse %d\n", leftMotorPulseCounter);
+        if (leftMotorPulseCounter >= leftMotorGoal){
+            SetDutycycleLeftMotor(0);
+            leftMotorPulseCounter = 0;
+        }
+        else{
+            leftMotorPulseCounter++;
+        }
+
 	}
 }
 

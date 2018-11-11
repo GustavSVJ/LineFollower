@@ -12,7 +12,7 @@
 #include "FIFO.h"
 
 // This initializes the FIFO structure with the given buffer and size. If the FIFO was already initialized it clears the buffer.
-void fifo_init(fifo_t* f, move_t* buff, int size)
+void fifo_init(fifo_t* f, MoveSteps* buff, int size)
 {
 	f->head = 0;
 	f->tail = 0;
@@ -22,7 +22,7 @@ void fifo_init(fifo_t* f, move_t* buff, int size)
 
 // This reads one byte from the FIFO
 // If the FIFO is empty it returns 0. Otherwise it returns 1.
-char fifo_read(fifo_t* f, move_t * data)
+char fifo_read(fifo_t* f, MoveSteps * data)
 {
 	if(f->tail != f->head) { // see if any data is available
 		*data = f->data[f->tail]; // grab a byte from the buffer
@@ -30,28 +30,28 @@ char fifo_read(fifo_t* f, move_t * data)
 		if(f->tail == f->size) { // check for wrap-around
 			f->tail = 0;
 		}
-		return 1;
+		return 0;
 	}
 	else {
-		return 0;
+		return 1;
 	}
 }
 
 // This writes one byte to the FIFO
-// If the head runs in to the tail 0 is returned
-// Otherwise the function returns 1
-char fifo_write(fifo_t* f, move_t data)
+// If the head runs in to the tail 1 is returned
+// Otherwise the function returns 0
+char fifo_write(fifo_t* f, MoveSteps data)
 {
 	// first check to see if there is space in the buffer
 	if((f->head + 1 == f->tail) || ((f->head + 1 == f->size) && (f->tail == 0))) {
-		return 0; // no more room
+		return 1; // no more room
 		} else {
 		f->data[f->head] = data;
 		f->head++; // increment the head
 		if(f->head == f->size) { // check for wrap-around
 			f->head = 0;
 		}
-		return 1;
+		return 0;
 	}
 }
 
