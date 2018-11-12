@@ -188,9 +188,6 @@
 		<Unit filename="SPL\src\stm32f30x_wwdg.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\30021_io.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src\flash.c">
 			<Option compilerVar="CC" />
 		</Unit>
