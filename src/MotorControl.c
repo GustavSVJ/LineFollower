@@ -15,6 +15,11 @@ fifo_t movements;
 
 volatile int leftMotorPulseCounter = 0;
 volatile int leftMotorGoal = 57;
+volatile int leftRunning = 0;
+
+volatile int rightMotorPulseCounter = 0;
+volatile int rightMotorGoal = 57;
+volatile int rightRunning = 0;
 
 
 int ConvertToSteps(move_t *directions);
@@ -33,40 +38,73 @@ void InitializeMotors(){
 }
 
 char MoveTo(move_t *directions){
-    if (fifo_size(&movements) != 0){
-        if (ConvertToSteps(directions)) return 1;
-        return 0;
+    if (rightRunning || leftRunning){
+        return ConvertToSteps(directions);
     }
     else {
-        if (ConvertToSteps(directions)) return 1;
+        float angle = directions->angle;
+        float distance = directions->distance;
 
+        if (angle != 0){
+            if (angle < 0){
+                rightMotorGoal = round(angle / DEGRESS_PER_STEP);
+                leftMotorGoal = 0;
+            }
+            else {
+                leftMotorGoal = round(angle / DEGRESS_PER_STEP);
+                rightMotorGoal = 0;
+            }
+        }
 
+        if (angle != 0 && distance != 0){
+            MoveSteps newMovement;
+            int steps = round(distance / CM_PER_STEP);
+            newMovement.leftSteps = steps;
+            newMovement.rightSteps = steps;
+
+            fifo_write(&movements, newMovement);
+        }
+
+        if (angle == 0 && distance != 0){
+            int steps = round(distance / CM_PER_STEP);
+            leftMotorGoal = steps;
+            rightMotorGoal = steps;
+        }
 
     return 1;
     }
 }
 
 int ConvertToSteps(move_t *directions){
-    MoveSteps newMovement;
-    float distance = directions->distance;
+
+    int status = 0;
     float angle = directions->angle;
+    float distance = directions->distance;
 
-    newMovement.straightSteps = round(distance / CM_PER_STEP);
+    if (angle != 0){
+        MoveSteps newMovement;
 
-    if (angle < 0){
-        newMovement.rightTurnSteps = round(angle / DEGRESS_PER_STEP);
-        newMovement.leftTurnSteps = 0;
+        if (angle < 0){
+            newMovement.rightSteps = round(angle / DEGRESS_PER_STEP);
+            newMovement.leftSteps = 0;
+        }
+        else {
+            newMovement.leftSteps = round(angle / DEGRESS_PER_STEP);
+            newMovement.rightSteps = 0;
+        }
+
+        status = fifo_write(&movements, newMovement);
     }
-    else if (angle > 0){
-        newMovement.leftTurnSteps = round(angle / DEGRESS_PER_STEP);
-        newMovement.rightTurnSteps = 0;
-    }
-    else{
-        newMovement.leftTurnSteps = 0;
-        newMovement.rightTurnSteps = 0;
+    if (distance != 0 && status == 0){
+        MoveSteps newMovement;
+        int steps = round(distance / CM_PER_STEP);
+        newMovement.leftSteps = steps;
+        newMovement.rightSteps = steps;
+
+        status = fifo_write(&movements, newMovement);
     }
 
-    return fifo_write(&movements, newMovement);
+    return status;
 }
 
 void InitializeMotorTimer(int topValue, int prescaler)
@@ -171,8 +209,32 @@ void DisableRightMotorEncoder(){
 
 void EXTI4_IRQHandler(void){
     if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Check if interrupt flag is set
-        printf("I was interrupted!\n");
         EXTI_ClearITPendingBit(EXTI_Line4); //Clear interrupt flag
+
+        if (rightMotorPulseCounter >= rightMotorGoal){
+            SetDutycycleRightMotor(0);
+            rightMotorPulseCounter = 0;
+
+
+            if (leftRunning == 0 && fifo_size(&movements) != 0){
+                MoveSteps newGoals;
+                fifo_read(&movements, &newGoals);
+                leftMotorGoal = newGoals.leftSteps;
+                rightMotorGoal = newGoals.rightSteps;
+                if (leftMotorGoal != 0){
+                    SetDutycycleLeftMotor(300);
+                }
+                if (rightMotorGoal != 0){
+                    SetDutycycleRightMotor(300);
+                }
+            }
+            else{
+                leftRunning = 0;
+            }
+        }
+        else{
+            rightMotorPulseCounter++;
+        }
 	}
 }
 
@@ -216,10 +278,27 @@ void DisableLeftMotorEncoder(){
 void EXTI9_5_IRQHandler(void){
     if (EXTI_GetITStatus(EXTI_Line5) != RESET) { //Check if interrupt flag is set
         EXTI_ClearITPendingBit(EXTI_Line5); //Clear interrupt flag
-        printf("Pulse %d\n", leftMotorPulseCounter);
+
         if (leftMotorPulseCounter >= leftMotorGoal){
             SetDutycycleLeftMotor(0);
             leftMotorPulseCounter = 0;
+
+
+            if (rightRunning == 0 && fifo_size(&movements) != 0){
+                MoveSteps newGoals;
+                fifo_read(&movements, &newGoals);
+                leftMotorGoal = newGoals.leftSteps;
+                rightMotorGoal = newGoals.rightSteps;
+                if (leftMotorGoal != 0){
+                    SetDutycycleLeftMotor(300);
+                }
+                if (rightMotorGoal != 0){
+                    SetDutycycleRightMotor(300);
+                }
+            }
+            else{
+                leftRunning = 0;
+            }
         }
         else{
             leftMotorPulseCounter++;

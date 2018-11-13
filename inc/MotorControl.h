@@ -10,9 +10,8 @@ typedef struct {
 } move_t;
 
 typedef struct {
-    int leftTurnSteps;
-    int rightTurnSteps;
-    int straightSteps;
+    int leftSteps;
+    int rightSteps;
     int speed;
 } MoveSteps;
 
