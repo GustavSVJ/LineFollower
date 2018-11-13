@@ -1,213 +1,111 @@
-#include <stm32f30x.h>
-#include <stm32f30x_rcc.h>
-#include <stm32f30x_gpio.h>
+#include "stm32f30x_conf.h" // STM32 config
+#include "Uart.h"
+#include "lcd.h"
+#include "flash.h"
 #include <stdio.h>
 #include <string.h>
-#include <stm32f30x_usart.h>
-#include <stm32f30x_misc.h>
-#include <30021_io.h>
 
-#define speed 115200 //Baudrate
+/******************************/
+/*** UART1 Serial Functions ***/
+/******************************/
+void uart1_putc(uint8_t c) {
+    USART_SendData(USART1, (uint8_t)c);
+    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE)  == RESET){}
+}
 
-void USART_DeInit(USART_TypeDef* USARTx);
-void USART_Init(USART_TypeDef* USARTx, USART_InitTypeDef* USART_InitStruct);
-void USART_StructInit(USART_InitTypeDef* USART_InitStruct);
-void GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct);
+uint8_t uart1_getc() {
+    while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET){};
+    uint8_t c = (uint8_t)USART_ReceiveData(USART1);
 
-USART_InitTypeDef USART_InitStruct;
-GPIO_InitTypeDef GPIO_InitStruct;
-////void USART_Init(uint32_t speed);
-//void Delay(unsigned int);
-//void USART1_IRQHandler(void);
-//
-//uint8_t rx_buffer[RX_BUFFER_LENGTH];	//used by the IRQ handler
-//uint8_t rx_counter = 0; 				//used by the IRQ handler
-//uint8_t uart_msg[RX_BUFFER_LENGTH];		//variable that contains the latest string received on the RX pin
-//uint8_t new_uart_msg = 0;				//flag variable to indicate if there is a new message to be serviced
-//
-//void USARTx_Init(uint32_t speed)
-//{
-//	USART_InitTypeDef USART_InitStructure;
-//	GPIO_InitTypeDef GPIO_InitStructure;
-//	NVIC_InitTypeDef NVIC_InitStructure;
-//
-//	/* Enable GPIO clock */
-//	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-//
-//	/* Enable USART clock */
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-//
-//	/* USART configuration */
-//	USART_InitStructure.USART_BaudRate = speed;
-//	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-//	USART_InitStructure.USART_StopBits = USART_StopBits_1;
-//	USART_InitStructure.USART_Parity = USART_Parity_No;
-//	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-//	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-//	USART_Init(USART1, &USART_InitStructure);
-//
-//	/* Configure USART Tx as alternate function push-pull */
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-//	GPIO_Init(GPIOA, &GPIO_InitStructure);
-//
-//	/* Configure USART Rx as alternate function push-pull */
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-//	GPIO_Init(GPIOA, &GPIO_InitStructure);
-//
-//	/* Connect PXx to USARTx_Tx */
-//	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_5);
-//
-//	/* Connect PXx to USARTx_Rx */
-//	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_5);
-//
-//	/* Enable USART */
-//	USART_Cmd(USART1, ENABLE);
-//
-//	/* Enable the UART4 Receive interrupt: this interrupt is generated when the
-//    UART4 receive data register is not empty */
-//	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-//
-//	/* Enable the USART4 Interrupt */
-//	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//	NVIC_Init(&NVIC_InitStructure);
-//}
-//
-//void USARTx_IRQHandler(void)
-//{
-//    int x;
-//
-//    if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-//    {
-//        /* Read one byte from the receive data register */
-//        rx_buffer[rx_counter] = USART_ReceiveData(USART1); //(USART_ReceiveData(UART4) & 0x7F);
-//
-//        /* if the last character received is the NEWLINE ('\n') or LF ('\r') character OR if the RX_BUFFER_LENGTH (40) value has been reached ...*/
-//        if(rx_counter + 1 == RX_BUFFER_LENGTH || rx_buffer[rx_counter] == '\n' || rx_buffer[rx_counter] == '\r')
-//        {
-//          new_uart_msg = 1;
-//                for(x=0; x<= rx_counter; x++)	//copy each character in the rx_buffer to the uart_msg variable
-//                    uart_msg[x] = rx_buffer[x];
-//                uart_msg[x] = 0;			//terminate with NULL character
-//
-//          memset(rx_buffer, 0, RX_BUFFER_LENGTH);		//clear rx_buffer
-//          rx_counter = 0;
-//        }
-//        else
-//        {
-//            rx_counter++;
-//        }
-//    }
-//}
-/*********************************************************************************/
+    if (c != 0x0D) { uart1_putc(c); }
 
+    return c;
+}
 
-int main(void)
-{
-    init_usb_uart(9600);
+void uart1_init(uint32_t baud) {
+    setbuf(stdout, NULL); // Set stdout to disable line buffering
+    setbuf(stdin,  NULL); // Set stdin  to disable line buffering
 
-/*************************************************************************/
-/********ENABLE CLOCK*****************************************************/
-/*************************************************************************/
+    // Enable Clocks
+    RCC->AHBENR  |= RCC_AHBPeriph_GPIOC;    // Enable Clock for GPIO Bank C
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;   // Enable Clock for USART1
 
-    //Enable peripheral clock
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    // Connect pins to USART1
+    GPIOC->AFR[5 >> 0x03] &= ~(0x0000000F << ((5 & 0x00000007) * 4)); // Clear alternate function for PC5
+    GPIOC->AFR[5 >> 0x03] |=  (0x00000007 << ((5 & 0x00000007) * 4)); // Set alternate function 7 (USART1) for PC5
+    GPIOC->AFR[4 >> 0x03] &= ~(0x0000000F << ((4 & 0x00000007) * 4)); // Clear alternate function for PC4
+    GPIOC->AFR[4 >> 0x03] |=  (0x00000007 << ((4 & 0x00000007) * 4)); // Set alternate function 7 (USART1) for PC4
 
-    //Enable GPIO clock
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+    // Configure pins PC5 and PC4 for 10 MHz alternate function
+    GPIOC->OSPEEDR &= ~(0x00000003 << (5 * 2) | 0x00000003 << (4 * 2));    // Clear speed register
+    GPIOC->OSPEEDR |=  (0x00000001 << (5 * 2) | 0x00000001 << (4 * 2));    // set speed register (0x01 - 10 MHz, 0x02 - 2 MHz, 0x03 - 50 MHz)
+    GPIOC->OTYPER  &= ~(0x0001     << (5)     | 0x0001     << (4));        // Clear output type register
+    GPIOC->OTYPER  |=  (0x0000     << (5)     | 0x0000     << (4));        // Set output type register (0x00 - Push pull, 0x01 - Open drain)
+    GPIOC->MODER   &= ~(0x00000003 << (5 * 2) | 0x00000003 << (4 * 2));    // Clear mode register
+    GPIOC->MODER   |=  (0x00000002 << (5 * 2) | 0x00000002 << (4 * 2));    // Set mode register (0x00 - Input, 0x01 - Output, 0x02 - Alternate Function, 0x03 - Analog in/out)
+    GPIOC->PUPDR   &= ~(0x00000003 << (5 * 2) | 0x00000003 << (4 * 2));    // Clear push/pull register
+    GPIOC->PUPDR   |=  (0x00000001 << (5 * 2) | 0x00000001 << (4 * 2));    // Set push/pull register (0x00 - No pull, 0x01 - Pull-up, 0x02 - Pull-down)
 
-    //De-initialize USART
-    USART_DeInit(USART1);
+    //Configure USART1
+    USART1->CR1 &= ~0x00000001; // Disable USART1
+    USART1->CR2 &= ~0x00003000; // Clear CR2 Configuration
+    USART1->CR2 |=  0x00000000; // Set 1 stop bits
+    USART1->CR1 &= ~(0x00001000 | 0x00000400 | 0x00000200 | 0x00000008 | 0x00000004); // Clear CR1 Configuration
+    USART1->CR1 |=  0x00000000; // Set word length to 8 bits
+    USART1->CR1 |=  0x00000000; // Set parity bits to none
+    USART1->CR1 |=  0x00000004 | 0x00000008; // Set mode to RX and TX
+    USART1->CR3 &= ~(0x00000100 | 0x00000200); // Clear CR3 Configuration
+    USART1->CR3 |=  0x00000000; // Set hardware flow control to none
 
-/*************************************************************************/
-/********SET ALTERNATE FUNCTION #*****************************************/
-/*************************************************************************/
+    uint32_t divider = 0, apbclock = 0, tmpreg = 0;
+    RCC_ClocksTypeDef RCC_ClocksStatus;
+    RCC_GetClocksFreq(&RCC_ClocksStatus); // Get USART1 Clock frequency
+    apbclock = RCC_ClocksStatus.USART2CLK_Frequency;
 
-    //Connect pin 9 alternate function
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_7);
+    if ((USART1->CR1 & 0x00008000) != 0) {
+      // (divider * 10) computing in case Oversampling mode is 8 Samples
+      divider = (2 * apbclock) / baud;
+      tmpreg  = (2 * apbclock) % baud;
+    } else {
+      // (divider * 10) computing in case Oversampling mode is 16 Samples
+      divider = apbclock / baud;
+      tmpreg  = apbclock % baud;
+    }
 
-    //Connect pin 10 alternate function
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_7);
+    if (tmpreg >=  baud / 2) {
+        divider++;
+    }
 
-/*************************************************************************/
-/********PIN CONFIGURATION TX*********************************************/
-/*************************************************************************/
+    if ((USART1->CR1 & 0x00008000) != 0) {
+        // get the LSB of divider and shift it to the right by 1 bit
+        tmpreg = (divider & (uint16_t)0x000F) >> 1;
+        // update the divider value
+        divider = (divider & (uint16_t)0xFFF0) | tmpreg;
+    }
 
-    //Connect the pin to the desired peripheral
-    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
+    USART1->BRR = (uint16_t)divider; // Configure baud rate
+    USART1->CR1 |= 0x00000001; // Enable USART1
+}
 
-    //Set alternate function
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+void uart1_putstr(uint8_t str[]){
+    for(uint8_t i = 0; str[i] != 0; i++){
+        uart1_putc(str[i]);
+    }
 
-    //Set type push/pull
-    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+}
 
-    //Set pull up
-    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+int main(void){
 
-    //Set speed
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    uart1_init(9600);
 
-    //Call init function
-    GPIO_Init(GPIOA, &GPIO_InitStruct);
+    uint8_t str[8];
+    memset(str, 0, 8);
+    sprintf(str, "Test");
 
-/*************************************************************************/
-/********PIN CONFIGURATION RX*********************************************/
-/*************************************************************************/
-
-    //Connect the pin to the desired peripheral
-    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-
-    //Set alternate function
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
-
-    //Set type Push/pull
-    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-
-    //Set pull up
-    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-
-    //Set speed
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-
-    //Call init function
-    GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-/********************************************************************/
-/********USART VALUES************************************************/
-/********************************************************************/
-
-    USART_InitStruct.USART_BaudRate = speed;
-	USART_InitStruct.USART_WordLength = USART_WordLength_8b;
-	USART_InitStruct.USART_StopBits = USART_StopBits_1;
-	USART_InitStruct.USART_Parity = USART_Parity_No;
-	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-	USART_Init(USART1, &USART_InitStruct);
-
-/********************************************************************/
-/********INITIALIZE USART********************************************/
-/********************************************************************/
-
-    USART_Init(USART1, &USART_InitStruct);
-
-/********************************************************************/
-/********************************************************************/
-/********************************************************************/
-
-    while(1)
-    {
-        printf("test");
-        USART_SendData(USART1, 0xFFFF);
-        unsigned char byte = USART_ReceiveData(USART1);
-
-        asm ("nop");
+    while(1){
+        uart1_putstr(str);
+        //Delay
+        for (uint32_t i = 0; i < 0xfffff; i++);
     }
 
     return 0;
