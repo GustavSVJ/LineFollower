@@ -5,17 +5,17 @@
 #include <string.h>
 #include <stm32f30x_usart.h>
 #include <stm32f30x_misc.h>
+#include <30021_io.h>
 
-
-#define RX_BUFFER_LENGTH	40			//maximum number of characters to hold in the receive buffer
-
-
+#define speed 115200 //Baudrate
 
 void USART_DeInit(USART_TypeDef* USARTx);
 void USART_Init(USART_TypeDef* USARTx, USART_InitTypeDef* USART_InitStruct);
 void USART_StructInit(USART_InitTypeDef* USART_InitStruct);
+void GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct);
 
 USART_InitTypeDef USART_InitStruct;
+GPIO_InitTypeDef GPIO_InitStruct;
 ////void USART_Init(uint32_t speed);
 //void Delay(unsigned int);
 //void USART1_IRQHandler(void);
@@ -106,30 +106,108 @@ USART_InitTypeDef USART_InitStruct;
 //    }
 //}
 /*********************************************************************************/
+
+
 int main(void)
 {
+    init_usb_uart(9600);
+
+/*************************************************************************/
+/********ENABLE CLOCK*****************************************************/
+/*************************************************************************/
+
+    //Enable peripheral clock
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+
+    //Enable GPIO clock
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+
     //De-initialize USART
     USART_DeInit(USART1);
 
-    //USART values
-    USART_StructInit(&USART_InitStruct);
-    {
-      /* USART_InitStruct members default value */
-      USART_InitStruct.USART_BaudRate = 115200;
-      USART_InitStruct.USART_WordLength = USART_WordLength_8b;
-      USART_InitStruct.USART_StopBits = USART_StopBits_1;
-      USART_InitStruct.USART_Parity = USART_Parity_No ;
-      USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-      USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    }
+/*************************************************************************/
+/********SET ALTERNATE FUNCTION #*****************************************/
+/*************************************************************************/
 
-    //Initialize USART
+    //Connect pin 9 alternate function
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_7);
+
+    //Connect pin 10 alternate function
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_7);
+
+/*************************************************************************/
+/********PIN CONFIGURATION TX*********************************************/
+/*************************************************************************/
+
+    //Connect the pin to the desired peripheral
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
+
+    //Set alternate function
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+
+    //Set type push/pull
+    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+
+    //Set pull up
+    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+
+    //Set speed
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+
+    //Call init function
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+/*************************************************************************/
+/********PIN CONFIGURATION RX*********************************************/
+/*************************************************************************/
+
+    //Connect the pin to the desired peripheral
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
+
+    //Set alternate function
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+
+    //Set type Push/pull
+    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+
+    //Set pull up
+    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+
+    //Set speed
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+
+    //Call init function
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+/********************************************************************/
+/********USART VALUES************************************************/
+/********************************************************************/
+
+    USART_InitStruct.USART_BaudRate = speed;
+	USART_InitStruct.USART_WordLength = USART_WordLength_8b;
+	USART_InitStruct.USART_StopBits = USART_StopBits_1;
+	USART_InitStruct.USART_Parity = USART_Parity_No;
+	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	USART_Init(USART1, &USART_InitStruct);
+
+/********************************************************************/
+/********INITIALIZE USART********************************************/
+/********************************************************************/
+
     USART_Init(USART1, &USART_InitStruct);
+
+/********************************************************************/
+/********************************************************************/
+/********************************************************************/
 
     while(1)
     {
         printf("test");
         USART_SendData(USART1, 0x55);
+        unsigned char byte = USART_ReceiveData(USART1);
+
+        asm ("nop");
     }
 
     return 0;
