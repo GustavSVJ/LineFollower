@@ -204,7 +204,7 @@ int main(void)
     while(1)
     {
         printf("test");
-        USART_SendData(USART1, 0x55);
+        USART_SendData(USART1, 0xFFFF);
         unsigned char byte = USART_ReceiveData(USART1);
 
         asm ("nop");
