@@ -4,17 +4,18 @@
 #include "MotorControl.h"
 
 int main(void){
-    InitializeLeftMotor();
 
-    InitializeMotorTimer(800, 1);
+    InitializeMotors();
 
     init_usb_uart(2000000);
 
-    InitializeLeftMotorEncoder();
-    EnableLeftMotorEncoder();
+    move_t newMovement;
 
-    SetDutycycleLeftMotor(300);
+    newMovement.speed = 1;
+    newMovement.angle = 0;
+    newMovement.distance = 50;
 
+    MoveTo(&newMovement);
 
 
     while(1){

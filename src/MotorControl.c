@@ -2,12 +2,14 @@
 #include "stm32f30x_conf.h" // STM32 config
 #include "Uart.h"
 #include "FIFO.h"
-#include "math.h"
+#include <math.h>
 
 #define MOVEMENT_QUEUE_LENGTH 100
 
 #define CM_PER_STEP 0.4684831150
 #define DEGRESS_PER_STEP 3.35526315812505
+
+#define round(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
 
 
 MoveSteps movementData[MOVEMENT_QUEUE_LENGTH];
@@ -23,6 +25,24 @@ volatile int rightRunning = 0;
 
 
 int ConvertToSteps(move_t *directions);
+void InitializeMotorTimer(int topValue, int prescaler);
+
+void InitializeLeftMotor();
+void SetDutycycleLeftMotor(int dutycycle);
+
+void InitializeRightMotor();
+void SetDutycycleRightMotor(int dutycycle);
+
+void InitializeRightMotorEncoder();
+void EnableRightMotorEncoder();
+void DisableRightMotorEncoder();
+
+void InitializeLeftMotorEncoder();
+void EnableLeftMotorEncoder();
+void DisableLeftMotorEncoder();
+
+char MoveTo(move_t *directions);
+void InitializeMotors();
 
 
 
@@ -35,6 +55,9 @@ void InitializeMotors(){
 
     InitializeLeftMotorEncoder();
     InitializeRightMotorEncoder();
+
+    EnableLeftMotorEncoder();
+    EnableRightMotorEncoder();
 }
 
 char MoveTo(move_t *directions){
@@ -69,6 +92,13 @@ char MoveTo(move_t *directions){
             int steps = round(distance / CM_PER_STEP);
             leftMotorGoal = steps;
             rightMotorGoal = steps;
+        }
+
+        if (leftMotorGoal != 0){
+            SetDutycycleLeftMotor(300);
+        }
+        if (rightMotorGoal != 0){
+            SetDutycycleRightMotor(300);
         }
 
     return 1;

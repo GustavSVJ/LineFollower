@@ -15,21 +15,8 @@ typedef struct {
     int speed;
 } MoveSteps;
 
-extern void InitializeMotorTimer(int topValue, int prescaler);
-
-extern void InitializeLeftMotor();
-extern void SetDutycycleLeftMotor(int dutycycle);
-
-extern void InitializeRightMotor();
-extern void SetDutycycleRightMotor(int dutycycle);
-
-extern void InitializeRightMotorEncoder();
-extern void EnableRightMotorEncoder();
-extern void DisableRightMotorEncoder();
-
-extern void InitializeLeftMotorEncoder();
-extern void EnableLeftMotorEncoder();
-extern void DisableLeftMotorEncoder();
+extern char MoveTo(move_t *directions);
+extern void InitializeMotors();
 
 
 #endif /* MotorControl_H_ */
