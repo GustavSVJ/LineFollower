@@ -96,61 +96,61 @@ void uart1_putstr(uint8_t str[]){
 /******************************/
 /*** UART2 Serial Functions ***/
 /******************************/
-void uart2_putc(uint8_t c) {
-    USART_SendData(USART2, (uint8_t)c);
-    while(USART_GetFlagStatus(USART2, USART_FLAG_TXE)  == RESET){}
+void uart3_putc(uint8_t c) {
+    USART_SendData(USART3, (uint8_t)c);
+    while(USART_GetFlagStatus(USART3, USART_FLAG_TXE)  == RESET){}
 }
 
-uint8_t uart2_getc() {
-    while(USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET){};
-    uint8_t c = (uint8_t)USART_ReceiveData(USART2);
+uint8_t uart3_getc() {
+    while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == RESET){};
+    uint8_t c = (uint8_t)USART_ReceiveData(USART3);
 
-    if (c != 0x0D) { uart2_putc(c); }
+    if (c != 0x0D) { uart3_putc(c); }
 
     return c;
 }
 
-void uart2_init(uint32_t baud) {
+void uart3_init(uint32_t baud) {
     setbuf(stdout, NULL); // Set stdout to disable line buffering
     setbuf(stdin,  NULL); // Set stdin  to disable line buffering
 
     // Enable Clocks
-    RCC->AHBENR  |= RCC_AHBPeriph_GPIOA;    // Enable Clock for GPIO Bank A
-    RCC->APB1ENR |= RCC_APB1ENR_USART2EN;   // Enable Clock for USART2
+    RCC->AHBENR  |= RCC_AHBPeriph_GPIOB;    // Enable Clock for GPIO Bank A
+    RCC->APB1ENR |= RCC_APB1ENR_USART3EN;   // Enable Clock for USART2
 
     // Connect pins to USART2
-    GPIOA->AFR[2 >> 0x03] &= ~(0x0000000F << ((2 & 0x00000007) * 4)); // Clear alternate function for PA2
-    GPIOA->AFR[2 >> 0x03] |=  (0x00000007 << ((2 & 0x00000007) * 4)); // Set alternate function 7 (USART2) for PA2
-    GPIOA->AFR[3 >> 0x03] &= ~(0x0000000F << ((3 & 0x00000007) * 4)); // Clear alternate function for PA3
-    GPIOA->AFR[3 >> 0x03] |=  (0x00000007 << ((3 & 0x00000007) * 4)); // Set alternate function 7 (USART2) for PA3
+    GPIOB->AFR[10 >> 0x03] &= ~(0x0000000F << ((10 & 0x00000007) * 4)); // Clear alternate function for PA2
+    GPIOB->AFR[10 >> 0x03] |=  (0x00000007 << ((10 & 0x00000007) * 4)); // Set alternate function 7 (USART2) for PA2
+    GPIOB->AFR[11 >> 0x03] &= ~(0x0000000F << ((11 & 0x00000007) * 4)); // Clear alternate function for PA3
+    GPIOB->AFR[11 >> 0x03] |=  (0x00000007 << ((11 & 0x00000007) * 4)); // Set alternate function 7 (USART2) for PA3
 
     // Configure pins PA2 and PA3 for 10 MHz alternate function
-    GPIOA->OSPEEDR &= ~(0x00000003 << (2 * 2) | 0x00000003 << (3 * 2));    // Clear speed register
-    GPIOA->OSPEEDR |=  (0x00000001 << (2 * 2) | 0x00000001 << (3 * 2));    // set speed register (0x01 - 10 MHz, 0x02 - 2 MHz, 0x03 - 50 MHz)
-    GPIOA->OTYPER  &= ~(0x0001     << (2)     | 0x0001     << (3));        // Clear output type register
-    GPIOA->OTYPER  |=  (0x0000     << (2)     | 0x0000     << (3));        // Set output type register (0x00 - Push pull, 0x01 - Open drain)
-    GPIOA->MODER   &= ~(0x00000003 << (2 * 2) | 0x00000003 << (3 * 2));    // Clear mode register
-    GPIOA->MODER   |=  (0x00000002 << (2 * 2) | 0x00000002 << (3 * 2));    // Set mode register (0x00 - Input, 0x01 - Output, 0x02 - Alternate Function, 0x03 - Analog in/out)
-    GPIOA->PUPDR   &= ~(0x00000003 << (2 * 2) | 0x00000003 << (3 * 2));    // Clear push/pull register
-    GPIOA->PUPDR   |=  (0x00000001 << (2 * 2) | 0x00000001 << (3 * 2));    // Set push/pull register (0x00 - No pull, 0x01 - Pull-up, 0x02 - Pull-down)
+    GPIOB->OSPEEDR &= ~(0x00000003 << (10 * 2) | 0x00000003 << (11 * 2));    // Clear speed register
+    GPIOB->OSPEEDR |=  (0x00000001 << (10 * 2) | 0x00000001 << (11 * 2));    // set speed register (0x01 - 10 MHz, 0x02 - 2 MHz, 0x03 - 50 MHz)
+    GPIOB->OTYPER  &= ~(0x0001     << (10)     | 0x0001     << (11));        // Clear output type register
+    GPIOB->OTYPER  |=  (0x0000     << (10)     | 0x0000     << (11));        // Set output type register (0x00 - Push pull, 0x01 - Open drain)
+    GPIOB->MODER   &= ~(0x00000003 << (10 * 2) | 0x00000003 << (11 * 2));    // Clear mode register
+    GPIOB->MODER   |=  (0x00000002 << (10 * 2) | 0x00000002 << (11 * 2));    // Set mode register (0x00 - Input, 0x01 - Output, 0x02 - Alternate Function, 0x03 - Analog in/out)
+    GPIOB->PUPDR   &= ~(0x00000003 << (10 * 2) | 0x00000003 << (11 * 2));    // Clear push/pull register
+    GPIOB->PUPDR   |=  (0x00000001 << (10 * 2) | 0x00000001 << (11 * 2));    // Set push/pull register (0x00 - No pull, 0x01 - Pull-up, 0x02 - Pull-down)
 
     //Configure USART2
-    USART2->CR1 &= ~0x00000001; // Disable USART2
-    USART2->CR2 &= ~0x00003000; // Clear CR2 Configuration
-    USART2->CR2 |=  0x00000000; // Set 1 stop bits
-    USART2->CR1 &= ~(0x00001000 | 0x00000400 | 0x00000200 | 0x00000008 | 0x00000004); // Clear CR1 Configuration
-    USART2->CR1 |=  0x00000000; // Set word length to 8 bits
-    USART2->CR1 |=  0x00000000; // Set parity bits to none
-    USART2->CR1 |=  0x00000004 | 0x00000008; // Set mode to RX and TX
-    USART2->CR3 &= ~(0x00000100 | 0x00000200); // Clear CR3 Configuration
-    USART2->CR3 |=  0x00000000; // Set hardware flow control to none
+    USART3->CR1 &= ~0x00000001; // Disable USART2
+    USART3->CR2 &= ~0x00003000; // Clear CR2 Configuration
+    USART3->CR2 |=  0x00000000; // Set 1 stop bits
+    USART3->CR1 &= ~(0x00001000 | 0x00000400 | 0x00000200 | 0x00000008 | 0x00000004); // Clear CR1 Configuration
+    USART3->CR1 |=  0x00000000; // Set word length to 8 bits
+    USART3->CR1 |=  0x00000000; // Set parity bits to none
+    USART3->CR1 |=  0x00000004 | 0x00000008; // Set mode to RX and TX
+    USART3->CR3 &= ~(0x00000100 | 0x00000200); // Clear CR3 Configuration
+    USART3->CR3 |=  0x00000000; // Set hardware flow control to none
 
     uint32_t divider = 0, apbclock = 0, tmpreg = 0;
     RCC_ClocksTypeDef RCC_ClocksStatus;
     RCC_GetClocksFreq(&RCC_ClocksStatus); // Get USART2 Clock frequency
-    apbclock = RCC_ClocksStatus.USART2CLK_Frequency;
+    apbclock = RCC_ClocksStatus.USART3CLK_Frequency;
 
-    if ((USART2->CR1 & 0x00008000) != 0) {
+    if ((USART3->CR1 & 0x00008000) != 0) {
       // (divider * 10) computing in case Oversampling mode is 8 Samples
       divider = (2 * apbclock) / baud;
       tmpreg  = (2 * apbclock) % baud;
@@ -164,27 +164,27 @@ void uart2_init(uint32_t baud) {
         divider++;
     }
 
-    if ((USART2->CR1 & 0x00008000) != 0) {
+    if ((USART3->CR1 & 0x00008000) != 0) {
         // get the LSB of divider and shift it to the right by 1 bit
         tmpreg = (divider & (uint16_t)0x000F) >> 1;
         // update the divider value
         divider = (divider & (uint16_t)0xFFF0) | tmpreg;
     }
 
-    USART2->BRR = (uint16_t)divider; // Configure baud rate
-    USART2->CR1 |= 0x00000001; // Enable USART1
+    USART3->BRR = (uint16_t)divider; // Configure baud rate
+    USART3->CR1 |= 0x00000001; // Enable USART1
 }
 
-void uart2_putstr(uint8_t str[]){
+void uart3_putstr(uint8_t str[]){
     for(uint8_t i = 0; str[i] != 0; i++){
-        uart1_putc(str[i]);
+        uart3_putc(str[i]);
     }
 
 }
 int main(void){
 
     uart1_init(115200);
-    uart2_init(115200);
+    uart3_init(115200);
 
 //    uint8_t str[8];
 //    memset(str, 0, 8);
@@ -197,7 +197,7 @@ int main(void){
         uart1_putstr(str1);
         //Delay
         for (uint32_t i = 0; i < 0xfffff; i++);
-        uart2_putstr(str2);
+        uart3_putstr(str2);
         //Delay
         for (uint32_t i = 0; i < 0xfffff; i++);
     }
