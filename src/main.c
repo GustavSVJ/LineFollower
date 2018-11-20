@@ -188,27 +188,19 @@ void uart3_putstr(uint8_t str[]){
 
 void init_USART1interrupt(){
     USART1->CR1 |= 0x00000020; //Enable RXNE interrupt (Register not empty)
-    NVIC_EnableIRQ(USART1_IRQn);
+    NVIC_EnableIRQ(USART1_IRQn); //Enable global interrupt
 }
 
 /*********************************************************************/
 int main(void){
 
     uart1_init(115200);
-    uart3_init(115200);
+//    init_USART1interrupt();
 
-//    uint8_t str[8];
-//    memset(str, 0, 8);
-//    sprintf(str, 0x55);
-//    fflush(stdout);
     uint8_t str1[] = {0x54, 0x45};
-    uint8_t str2[] = {0x53, 0x54};
 
     while(1){
         uart1_putstr(str1);
-        //Delay
-        for (uint32_t i = 0; i < 0xfffff; i++);
-        uart3_putstr(str2);
         //Delay
         for (uint32_t i = 0; i < 0xfffff; i++);
     }
