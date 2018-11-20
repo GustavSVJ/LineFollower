@@ -1760,7 +1760,7 @@ void USART_DMAReceptionErrorConfig(USART_TypeDef* USARTx, uint32_t USART_DMAOnEr
   *         @arg USART_IT_RTO:  Receive time out interrupt.
   *         @arg USART_IT_CTS:  CTS change interrupt.
   *         @arg USART_IT_LBD:  LIN Break detection interrupt.
-  *         @arg USART_IT_TXE:  Tansmit Data Register empty interrupt.
+  *         @arg USART_IT_TXE:  Transmit Data Register empty interrupt.
   *         @arg USART_IT_TC:  Transmission complete interrupt.
   *         @arg USART_IT_RXNE:  Receive Data register not empty interrupt.
   *         @arg USART_IT_IDLE:  Idle line detection interrupt.

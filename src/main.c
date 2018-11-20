@@ -181,6 +181,17 @@ void uart3_putstr(uint8_t str[]){
     }
 
 }
+
+/******************************/
+/***      Interrupts        ***/
+/******************************/
+
+void init_USART1interrupt(){
+    USART1->CR1 |= 0x00000020; //Enable RXNE interrupt (Register not empty)
+    NVIC_EnableIRQ(USART1_IRQn);
+}
+
+/*********************************************************************/
 int main(void){
 
     uart1_init(115200);
