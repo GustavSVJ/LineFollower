@@ -4,6 +4,7 @@
 #include "flash.h"
 #include <stdio.h>
 #include <string.h>
+#include "30021_io.h"
 
 /******************************/
 /*** UART1 Serial Functions ***/
@@ -193,27 +194,31 @@ void init_USART1interrupt(){
 
 /*********************************************************************/
 int main(void){
-
+    init_usb_uart(115200);
     uart1_init(115200);
-<<<<<<< HEAD
-//    init_USART1interrupt();
-=======
-    uart2_init(115200);
->>>>>>> parent of 613ca19... Testing UART1 and UART3
+    init_USART1interrupt();
 
-    uint8_t str1[] = {0x54, 0x45};
+//    uint8_t str1[] = {0x54, 0x45};
+    uint8_t str1[] = {0x45, 0x45};
+//    uint8_t str2[] = {0x55, 0x55};
+
+    uart_putc('T');
 
     while(1){
         uart1_putstr(str1);
         //Delay
         for (uint32_t i = 0; i < 0xfffff; i++);
-<<<<<<< HEAD
-=======
-        uart2_putstr(str2);
-        //Delay
-        for (uint32_t i = 0; i < 0xfffff; i++);
->>>>>>> parent of 613ca19... Testing UART1 and UART3
     }
 
     return 0;
+}
+
+void USART1_IRQHandler(){
+    FlagStatus stuff = USART_GetFlagStatus(USART1, USART_FLAG_RXNE);
+    if (stuff != RESET){
+//        USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+        uart_putc(USART_ReceiveData(USART1));
+    }
+
+
 }
