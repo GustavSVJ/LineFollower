@@ -49,9 +49,9 @@ void InitializeMotors();
 void InitializeMotors(){
     fifo_init(&movements, movementData, MOVEMENT_QUEUE_LENGTH);
 
-    InitializeMotorTimer(63999, 9);
-    InitializeLeftMotor();
-    InitializeRightMotor();
+    InitializeMotorTimer(800, 1);
+    //InitializeLeftMotor();
+    //InitializeRightMotor();
 
     InitializeLeftMotorEncoder();
     InitializeRightMotorEncoder();
@@ -95,10 +95,10 @@ char MoveTo(move_t *directions){
         }
 
         if (leftMotorGoal != 0){
-            SetDutycycleLeftMotor(300);
+            SetDutycycleLeftMotor(700);
         }
         if (rightMotorGoal != 0){
-            SetDutycycleRightMotor(300);
+            SetDutycycleRightMotor(700);
         }
 
     return 1;
@@ -155,10 +155,12 @@ void InitializeLeftMotor()
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
 
     GPIO_InitTypeDef gpioStructure;
+
     gpioStructure.GPIO_Pin = GPIO_Pin_3;
     gpioStructure.GPIO_Mode = GPIO_Mode_AF;
     gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &gpioStructure);
+
 }
 
 void InitializeRightMotor()

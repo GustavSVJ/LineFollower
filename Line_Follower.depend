@@ -463,12 +463,19 @@
 1542102591 c:\users\s164846\documents\github\line_follower\inc\fifo.h
 	"MotorControl.h"
 
-1542105539 c:\users\s164846\documents\github\line_follower\inc\motorcontrol.h
+1542715323 c:\users\s164846\documents\github\line_follower\inc\motorcontrol.h
 	"stm32f30x_conf.h"
 
-1542102591 source:c:\users\s164846\documents\github\line_follower\src\main.c
+1542731048 source:c:\users\s164846\documents\github\line_follower\src\main.c
 	"stm32f30x_conf.h"
 	"Uart.h"
 	"lcd.h"
 	"MotorControl.h"
+
+1542727087 source:c:\users\s164846\documents\github\line_follower\src\motorcontrol.c
+	"MotorControl.h"
+	"stm32f30x_conf.h"
+	"Uart.h"
+	"FIFO.h"
+	<math.h>
 
