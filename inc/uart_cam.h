@@ -4,6 +4,10 @@
 #include "Uart.h"
 #include "stm32f30x_conf.h"
 
+#define receiveBuffer
+#define receiveFlag
+#define camera_ready
+
 void uart1_putc(uint8_t c);
 uint8_t uart1_getc();
 void uart1_init(uint32_t baud);
