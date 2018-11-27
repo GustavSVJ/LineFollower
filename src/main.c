@@ -11,18 +11,18 @@ int main(void){
 
     move_t newMovement;
 
-    newMovement.speed = 1;
-    newMovement.angle = 0;
-    newMovement.distance = 200;
-
-    MoveTo(&newMovement);
 
 
     while(1){
-        for(uint16_t i = 'a'; i < 'z' + 1; i++){
-            uart_putc(i);
-        for(uint32_t j = 0; j < 0xfffff; j++);
-        }
+            newMovement.speed = 1;
+            newMovement.angle = 0;
+            newMovement.distance = 200;
+
+            MoveTo(&newMovement);
+        uart_putc('o');
+        for(uint64_t j = 0; j < 0xffffff; j++);
+        uart_putc('n');
+
 
     }
 

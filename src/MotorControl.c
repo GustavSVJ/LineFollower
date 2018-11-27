@@ -4,6 +4,8 @@
 #include "FIFO.h"
 #include <math.h>
 
+
+#define PWM_Speed 600
 #define MOVEMENT_QUEUE_LENGTH 100
 
 #define CM_PER_STEP 0.4684831150
@@ -18,11 +20,12 @@ fifo_t movements;
 volatile int leftMotorPulseCounter = 0;
 volatile int leftMotorGoal = 57;
 volatile int leftRunning = 0;
+volatile int leftSpeed = PWM_Speed;
 
 volatile int rightMotorPulseCounter = 0;
 volatile int rightMotorGoal = 57;
 volatile int rightRunning = 0;
-
+volatile int rightSpeed = PWM_Speed;
 
 int ConvertToSteps(move_t *directions);
 void InitializeMotorTimer(int topValue, int prescaler);
@@ -50,8 +53,8 @@ void InitializeMotors(){
     fifo_init(&movements, movementData, MOVEMENT_QUEUE_LENGTH);
 
     InitializeMotorTimer(800, 1);
-    //InitializeLeftMotor();
-    //InitializeRightMotor();
+    InitializeLeftMotor();
+    InitializeRightMotor();
 
     InitializeLeftMotorEncoder();
     InitializeRightMotorEncoder();
@@ -95,10 +98,10 @@ char MoveTo(move_t *directions){
         }
 
         if (leftMotorGoal != 0){
-            SetDutycycleLeftMotor(700);
+            SetDutycycleLeftMotor(PWM_Speed);
         }
         if (rightMotorGoal != 0){
-            SetDutycycleRightMotor(700);
+            SetDutycycleRightMotor(PWM_Speed);
         }
 
     return 1;
@@ -140,7 +143,10 @@ int ConvertToSteps(move_t *directions){
 void InitializeMotorTimer(int topValue, int prescaler)
 {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
     TIM_TimeBaseInitTypeDef timerInitStructure;
+    TIM_TimeBaseStructInit(&timerInitStructure);
+
     timerInitStructure.TIM_Prescaler = prescaler;
     timerInitStructure.TIM_CounterMode = TIM_CounterMode_CenterAligned1;
     timerInitStructure.TIM_Period = topValue;
@@ -155,6 +161,7 @@ void InitializeLeftMotor()
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
 
     GPIO_InitTypeDef gpioStructure;
+    GPIO_StructInit(&gpioStructure);
 
     gpioStructure.GPIO_Pin = GPIO_Pin_3;
     gpioStructure.GPIO_Mode = GPIO_Mode_AF;
@@ -168,6 +175,8 @@ void InitializeRightMotor()
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
 
     GPIO_InitTypeDef gpioStructure;
+    GPIO_StructInit(&gpioStructure);
+
     gpioStructure.GPIO_Pin = GPIO_Pin_10;
     gpioStructure.GPIO_Mode = GPIO_Mode_AF;
     gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -214,7 +223,7 @@ void InitializeRightMotorEncoder()
     gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &gpioStructure);
 
-    RCC_APB2PeriphClockCmd(RCC_APB2ENR_SYSCFGEN, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
     SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
 
@@ -222,12 +231,14 @@ void InitializeRightMotorEncoder()
     extiStructure.EXTI_Line = EXTI_Line4;
     extiStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     extiStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    extiStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&extiStructure);
 
     NVIC_InitTypeDef nvicStructure;
     nvicStructure.NVIC_IRQChannel = EXTI4_IRQn;
     nvicStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
     nvicStructure.NVIC_IRQChannelSubPriority = 0x00;
+    nvicStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvicStructure);
 }
 
@@ -254,10 +265,10 @@ void EXTI4_IRQHandler(void){
                 leftMotorGoal = newGoals.leftSteps;
                 rightMotorGoal = newGoals.rightSteps;
                 if (leftMotorGoal != 0){
-                    SetDutycycleLeftMotor(300);
+                    SetDutycycleLeftMotor(PWM_Speed);
                 }
                 if (rightMotorGoal != 0){
-                    SetDutycycleRightMotor(300);
+                    SetDutycycleRightMotor(PWM_Speed);
                 }
             }
             else{
@@ -265,6 +276,7 @@ void EXTI4_IRQHandler(void){
             }
         }
         else{
+
             rightMotorPulseCounter++;
         }
 	}
@@ -282,7 +294,7 @@ void InitializeLeftMotorEncoder()
     gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &gpioStructure);
 
-    RCC_APB2PeriphClockCmd(RCC_APB2ENR_SYSCFGEN, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
     SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource5);
 
@@ -290,12 +302,15 @@ void InitializeLeftMotorEncoder()
     extiStructure.EXTI_Line = EXTI_Line5;
     extiStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     extiStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    extiStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&extiStructure);
 
     NVIC_InitTypeDef nvicStructure;
+
     nvicStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
     nvicStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-    nvicStructure.NVIC_IRQChannelSubPriority = 0x00;
+    nvicStructure.NVIC_IRQChannelSubPriority = 0x01;
+    nvicStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvicStructure);
 }
 
@@ -322,10 +337,10 @@ void EXTI9_5_IRQHandler(void){
                 leftMotorGoal = newGoals.leftSteps;
                 rightMotorGoal = newGoals.rightSteps;
                 if (leftMotorGoal != 0){
-                    SetDutycycleLeftMotor(300);
+                    SetDutycycleLeftMotor(PWM_Speed);
                 }
                 if (rightMotorGoal != 0){
-                    SetDutycycleRightMotor(300);
+                    SetDutycycleRightMotor(PWM_Speed);
                 }
             }
             else{
@@ -333,6 +348,8 @@ void EXTI9_5_IRQHandler(void){
             }
         }
         else{
+
+
             leftMotorPulseCounter++;
         }
 
