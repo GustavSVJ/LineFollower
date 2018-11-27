@@ -9,6 +9,8 @@
 /******************************/
 /*** UART1 Serial Functions ***/
 /******************************/
+
+
 void uart1_putc(uint8_t c) {
     USART_SendData(USART1, (uint8_t)c);
     while(USART_GetFlagStatus(USART1, USART_FLAG_TXE)  == RESET){}
@@ -194,18 +196,22 @@ void init_USART1interrupt(){
 
 /*********************************************************************/
 int main(void){
-    init_usb_uart(115200);
-    uart1_init(115200);
+    init_usb_uart(921600);
+    uart1_init(921600);
     init_USART1interrupt();
 
-//    uint8_t str1[] = {0x54, 0x45};
-    uint8_t str1[] = {0x45, 0x45};
-//    uint8_t str2[] = {0x55, 0x55};
+    //Initializing camera:
+    uint8_t init_camera[] = {0xAA,0x01,0x00,0x03,0x01,0x00};
+    uart1_putstr(init_camera);
 
-    uart_putc('T');
+    //Sync camera
+    uint8_t sync_camera[] = {0xAA,0x0D,0x00,0x00,0x00,0x00};
+//    uart1_putstr(sync_camera);
 
     while(1){
-        uart1_putstr(str1);
+        if(USART_ReceiveData(USART1) != sync_camera){
+            uart1_putstr(sync_camera);
+        }
         //Delay
         for (uint32_t i = 0; i < 0xfffff; i++);
     }
@@ -219,6 +225,4 @@ void USART1_IRQHandler(){
 //        USART_ClearITPendingBit(USART1, USART_IT_RXNE);
         uart_putc(USART_ReceiveData(USART1));
     }
-
-
 }
