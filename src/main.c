@@ -50,7 +50,12 @@ int main(void){
 
 
     while(1){
+        for (uint32_t i = 0; i < 0xfffff; i++);
+        char buffer[50];
+        sprintf(buffer, "Hello World!\r\n");
+        USB_Putstr(buffer);
         if (uart1_RxFlag == 1){
+                uart1_RxFlag = 0;
             USB_Putstr(uart1_ReceiveBuffer);
         }
     }
@@ -58,7 +63,6 @@ int main(void){
     return 0;
 }
 /*********************************************************************/
-
 
 
 void USART1_IRQHandler(){
