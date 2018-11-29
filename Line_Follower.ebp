@@ -91,6 +91,7 @@
 		<Unit filename="cmsis\core_cm4_simd.h" />
 		<Unit filename="cmsis\core_cmFunc.h" />
 		<Unit filename="cmsis\core_cmInstr.h" />
+		<Unit filename="inc\30021_io.h" />
 		<Unit filename="inc\charset.h" />
 		<Unit filename="inc\FIFO.h" />
 		<Unit filename="inc\flash.h" />
@@ -100,6 +101,7 @@
 		<Unit filename="inc\stm32f30x_conf.h" />
 		<Unit filename="inc\system_stm32f30x.h" />
 		<Unit filename="inc\Uart.h" />
+		<Unit filename="inc\uart_cam.h" />
 		<Unit filename="readme.txt" />
 		<Unit filename="SPL\inc\stm32f30x_adc.h" />
 		<Unit filename="SPL\inc\stm32f30x_can.h" />
@@ -195,7 +197,7 @@
 		<Unit filename="src\flash.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\lcd.c">
+		<Unit filename="src\flash.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\main.c">
@@ -210,7 +212,7 @@
 		<Unit filename="src\system_stm32f30x.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\Uart.c">
+		<Unit filename="src\uart_cam.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="stm32f302r8_flash.ld" />
@@ -235,6 +237,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
+
 				<target_debugging_settings target="Debug" active_interface="OpenOCD">
 					<debug_interface interface_id="OpenOCD" ip_address="localhost" ip_port="3333" path="C:\Program Files (x86)\OpenOCD\bin-x64" executable="openocd.exe" description="" dont_start_server="false" backoff_time="100" options="0" reg_filter="0" active_family="All" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="All">

@@ -50,6 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-Line_Follower.elay
+
+# EmBitz
 *.elay
-Line_Follower.elay
+*.depend
