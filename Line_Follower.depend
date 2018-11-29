@@ -181,7 +181,7 @@
 	"stm32f30x_tim.h"
 	"stm32f30x_rcc.h"
 
-1541842997 source:c:\users\gusta\documents\github\linefollower\spl\src\stm32f30x_usart.c
+1543509777 source:c:\users\gusta\documents\github\linefollower\spl\src\stm32f30x_usart.c
 	"stm32f30x_usart.h"
 	"stm32f30x_rcc.h"
 
@@ -205,7 +205,7 @@
 
 1541494377 c:\users\gusta\documents\github\linefollower\inc\charset.h
 
-1542564228 source:c:\users\gusta\documents\github\linefollower\src\motorcontrol.c
+1543509769 source:c:\users\gusta\documents\github\linefollower\src\motorcontrol.c
 	"MotorControl.h"
 	"stm32f30x_conf.h"
 	"Uart.h"
@@ -217,26 +217,27 @@
 1541494377 source:c:\users\gusta\documents\github\linefollower\src\system_stm32f30x.c
 	"stm32f30x.h"
 
-1541494377 source:c:\users\gusta\documents\github\linefollower\src\uart.c
+1543512046 source:c:\users\gusta\documents\github\linefollower\src\uart.c
 	"Uart.h"
 
-1541494377 c:\users\gusta\documents\github\linefollower\inc\uart.h
+1543512010 c:\users\gusta\documents\github\linefollower\inc\uart.h
 	"stm32f30x_conf.h"
 	<stdio.h>
 
-1542564279 source:c:\users\gusta\documents\github\linefollower\src\main.c
+1543512167 source:c:\users\gusta\documents\github\linefollower\src\main.c
+	<stdio.h>
+	<string.h>
 	"stm32f30x_conf.h"
 	"Uart.h"
-	"lcd.h"
 	"MotorControl.h"
 
-1542564248 c:\users\gusta\documents\github\linefollower\inc\motorcontrol.h
+1543509769 c:\users\gusta\documents\github\linefollower\inc\motorcontrol.h
 	"stm32f30x_conf.h"
 
-1541849370 source:c:\users\gusta\documents\github\linefollower\src\fifo.c
+1543509769 source:c:\users\gusta\documents\github\linefollower\src\fifo.c
 	"FIFO.h"
 
-1541847749 c:\users\gusta\documents\github\linefollower\inc\fifo.h
+1543509769 c:\users\gusta\documents\github\linefollower\inc\fifo.h
 	"MotorControl.h"
 
 1536063622 source:c:\users\s164846\documents\github\line_follower\spl\src\stm32f30x_adc.c
@@ -478,4 +479,8 @@
 	"Uart.h"
 	"FIFO.h"
 	<math.h>
+
+1543509777 c:\users\gusta\documents\github\linefollower\inc\uart_cam.h
+	"Uart.h"
+	"stm32f30x_conf.h"
 

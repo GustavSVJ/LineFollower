@@ -2,10 +2,9 @@
 #include <string.h>
 #include "stm32f30x_conf.h"
 #include "Uart.h"
-#include "lcd.h"
 
 #include "MotorControl.h"
-#include "uart_cam.h"
+
 
 /**************************CAMERA FUNCTIONS***************************/
 /*
@@ -33,37 +32,53 @@
 
 */
 /*********************************************************************/
+
+char uart1_ReceiveBuffer[5000];
+volatile char uart1_RxFlag = 0;
+
+
+
 int main(void){
-    init_usb_uart(921600);
-    uart1_init(921600);
-    init_USART1interrupt();
+    USB_Init(921600);
+    UART1_Init(921600);
+    UART1_EnableInterrupt();
 
     InitializeMotors();
-
-    init_usb_uart(115200);
 
     move_t newMovement;
 
 
 
     while(1){
-
-//        uart1_putc('i');
-        //Delay
-        for (uint32_t i = 0; i < 0xfffff; i++);
+        if (uart1_RxFlag == 1){
+            USB_Putstr(uart1_ReceiveBuffer);
+        }
     }
 
     return 0;
 }
 /*********************************************************************/
+
+
+
 void USART1_IRQHandler(){
 
+    static uint16_t i = 0;
+
     if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET){
-
-        uart1_putc('i');
-        uart1_putc(USART_ReceiveData(USART1));
-
         USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+
+        char rx = USART_ReceiveData(USART1);
+
+        if (rx != '\n'){
+            uart1_ReceiveBuffer[i] = rx;
+            i++;
+        }
+        else{
+            uart1_ReceiveBuffer[i] = 0;
+            i = 0;
+            uart1_RxFlag = 1;
+        }
     }
 }
 
