@@ -51,3 +51,5 @@ Module.symvers
 Mkfile.old
 dkms.conf
 Line_Follower.elay
+*.elay
+Line_Follower.elay
