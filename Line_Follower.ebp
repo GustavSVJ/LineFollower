@@ -204,6 +204,9 @@
 		<Unit filename="src\Uart.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\UcamFunction.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="stm32f302r8_flash.ld" />
 		<Unit filename="stm32f302r8_sram.ld" />
 		<Extensions>

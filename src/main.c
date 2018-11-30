@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "stm32f30x_conf.h"
 #include "Uart.h"
 
@@ -33,13 +34,15 @@
 */
 /*********************************************************************/
 
-char uart1_ReceiveBuffer[5000];
-volatile char uart1_RxFlag = 0;
-
 
 
 int main(void){
+
     USB_Init(921600);
+
+
+    uart_fifo_init(&uart_fifo, sizeof(uart_data_buffer), uart_data_buffer);
+
     UART1_Init(921600);
     UART1_EnableInterrupt();
 
@@ -48,15 +51,21 @@ int main(void){
     move_t newMovement;
 
 
+    char buffer[50];
+        sprintf(buffer, "Hello World!\r\n");
+        USB_Putstr(buffer);
 
     while(1){
         for (uint32_t i = 0; i < 0xfffff; i++);
-        char buffer[50];
-        sprintf(buffer, "Hello World!\r\n");
-        USB_Putstr(buffer);
-        if (uart1_RxFlag == 1){
-                uart1_RxFlag = 0;
-            USB_Putstr(uart1_ReceiveBuffer);
+
+        if(uart_fifo_elements(&uart_fifo)>0){
+
+            char temp;
+            uart_fifo_read(&uart_fifo, &temp);
+
+            sprintf(buffer, "input: %c \r\n",temp);
+            USB_Putstr(buffer);
+
         }
     }
 
@@ -65,24 +74,4 @@ int main(void){
 /*********************************************************************/
 
 
-void USART1_IRQHandler(){
-
-    static uint16_t i = 0;
-
-    if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET){
-        USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-
-        char rx = USART_ReceiveData(USART1);
-
-        if (rx != '\n'){
-            uart1_ReceiveBuffer[i] = rx;
-            i++;
-        }
-        else{
-            uart1_ReceiveBuffer[i] = 0;
-            i = 0;
-            uart1_RxFlag = 1;
-        }
-    }
-}
 
