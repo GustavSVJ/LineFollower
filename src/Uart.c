@@ -175,6 +175,13 @@ void UART1_Putstr(char str[]){
     }
 }
 
+void UART1_send_bytes(uint8_t *data, uint8_t no_bytes)
+{
+    for(uint8_t i = 0; i < no_bytes; i++){
+        USART_SendData(USART1, (uint16_t)data[i]);
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TXE)  == RESET){}
+    }
+}
 
 
 /******************************/
@@ -272,6 +279,12 @@ void UART2_Putstr(char str[]){
     }
 
 }
+
+
+
+///////////////////////////////////////////////////////////
+
+
 
 
 void USART1_IRQHandler(){

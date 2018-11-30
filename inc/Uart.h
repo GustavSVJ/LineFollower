@@ -22,6 +22,8 @@ char UART1_Getchar();
 void UART1_Init(uint32_t baud);
 void UART1_Putstr(char str[]);
 void UART1_EnableInterrupt();
+void UART1_send_bytes(uint8_t *data, uint8_t no_bytes);
+
 
 
 /****************************/
