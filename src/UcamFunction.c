@@ -1,3 +1,4 @@
+#include "stm32f30x.h"
 #include "Uart.h"
 #include "UcamFunction.h"
 #include <stdlib.h>
@@ -67,10 +68,12 @@ void ucam_init(void){
 
     status_cam = 1;
 
-
-
-
 }
+
+
+
+
+
 
 void ucam_sync(void){
     //sync routine
@@ -89,3 +92,54 @@ void ucam_get_picture(){
 
 }
 */
+
+
+
+void ucam_reset_pin_setup(void){
+
+    //setup PC08 as output for ucam reset pin
+    //reset is active low
+
+    RCC->AHBENR |= RCC_AHBPeriph_GPIOC;         //Enable clock for GPIO Port C
+
+    GPIOC->MODER &= ~(0x00000003 << (8 * 2));   //clear MODER for PC08
+    GPIOC->MODER |=  (0x00000001 << (8 * 2));   //set MODER for output
+
+    GPIOC->PUPDR &= ~(0x00000003 << (0 * 2));   //clear PUPDR for PC08
+    GPIOC->PUPDR |=  (0x00000001 << (0 * 2));   //set PUPDR for pull-up
+
+    GPIOC->ODR |= (0x0001 << 8);                //set PCO8 as high
+}
+
+
+void ucam_reset(void){
+
+    //reset ucam3 with PC08, active low
+
+
+}
+
+
+void delay_ms(uint32_t time_ms){
+
+    //update SysTick delay timer
+    delay_timer = time_ms;
+
+    //wait until time_ms has passed
+    while(delay_timer != 0);
+}
+
+
+void init_delay_ms(void){
+    //setup systick to be used for ms delays
+    SysTick_Config(64000000/1000);
+}
+
+
+void SysTick_Handler(void)
+{
+    //check if delay timer is set, and down count if so
+    if(delay_timer > 0){
+        delay_timer--;
+    }
+}

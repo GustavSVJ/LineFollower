@@ -12,6 +12,9 @@ void ucam_sync(void);
 
 
 
+uint32_t delay_timer;
+
+
 
 
 
