@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "stm32f30x_conf.h"
-#include "Uart.h"
 
+#include "Uart.h"
 #include "MotorControl.h"
+#include "PID.h"
+
 
 
 /**************************CAMERA FUNCTIONS***************************/
@@ -33,31 +35,24 @@
 */
 /*********************************************************************/
 
-char uart1_ReceiveBuffer[5000];
+char uart1_ReceiveBuffer[100];
 volatile char uart1_RxFlag = 0;
+
 
 
 
 int main(void){
     USB_Init(921600);
-    UART1_Init(921600);
-    UART1_EnableInterrupt();
 
-    InitializeMotors();
-
-    move_t newMovement;
-
-
+    RegulatorRun();
 
     while(1){
-        for (uint32_t i = 0; i < 0xfffff; i++);
-        char buffer[50];
-        sprintf(buffer, "Hello World!\r\n");
-        USB_Putstr(buffer);
-        if (uart1_RxFlag == 1){
-                uart1_RxFlag = 0;
-            USB_Putstr(uart1_ReceiveBuffer);
+        if (timer15_PIDFlag){
+            timer15_PIDFlag = 0;
+            RegulatorUpdate(40,40);
+
         }
+
     }
 
     return 0;

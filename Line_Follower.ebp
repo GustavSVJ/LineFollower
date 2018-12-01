@@ -93,6 +93,8 @@
 		<Unit filename="cmsis\core_cmInstr.h" />
 		<Unit filename="inc\FIFO.h" />
 		<Unit filename="inc\MotorControl.h" />
+		<Unit filename="inc\PID.h" />
+		<Unit filename="inc\regulator.h" />
 		<Unit filename="inc\stm32f30x.h" />
 		<Unit filename="inc\stm32f30x_conf.h" />
 		<Unit filename="inc\system_stm32f30x.h" />
@@ -193,6 +195,12 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\MotorControl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\PID.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\regulator.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\startup_stm32f30x.S">

@@ -18,16 +18,9 @@ MoveSteps movementData[MOVEMENT_QUEUE_LENGTH];
 fifo_t movements;
 
 volatile int leftMotorPulseCounter = 0;
-volatile int leftMotorGoal = 57;
-volatile int leftRunning = 0;
-volatile int leftSpeed = PWM_Speed;
-
 volatile int rightMotorPulseCounter = 0;
-volatile int rightMotorGoal = 57;
-volatile int rightRunning = 0;
-volatile int rightSpeed = PWM_Speed;
 
-int ConvertToSteps(move_t *directions);
+
 void InitializeMotorTimer(int topValue, int prescaler);
 
 void InitializeLeftMotor();
@@ -44,15 +37,13 @@ void InitializeLeftMotorEncoder();
 void EnableLeftMotorEncoder();
 void DisableLeftMotorEncoder();
 
-char MoveTo(move_t *directions);
-void InitializeMotors();
+void InitializeMotors(uint16_t top, uint16_t prescaler);
 
 
 
-void InitializeMotors(){
-    fifo_init(&movements, movementData, MOVEMENT_QUEUE_LENGTH);
+void InitializeMotors(uint16_t top, uint16_t prescaler){
 
-    InitializeMotorTimer(800, 1);
+    InitializeMotorTimer(top, prescaler);
     InitializeLeftMotor();
     InitializeRightMotor();
 
@@ -62,7 +53,7 @@ void InitializeMotors(){
     EnableLeftMotorEncoder();
     EnableRightMotorEncoder();
 }
-
+/*
 char MoveTo(move_t *directions){
     if (rightRunning || leftRunning){
         return ConvertToSteps(directions);
@@ -139,6 +130,7 @@ int ConvertToSteps(move_t *directions){
 
     return status;
 }
+*/
 
 void InitializeMotorTimer(int topValue, int prescaler)
 {
@@ -185,7 +177,9 @@ void InitializeRightMotor()
 
 void SetDutycycleLeftMotor(int dutycycle)
 {
-    TIM_OCInitTypeDef outputChannelInit = {0,};
+    TIM_OCInitTypeDef outputChannelInit;
+    TIM_OCStructInit(&outputChannelInit);
+
     outputChannelInit.TIM_OCMode = TIM_OCMode_PWM1;
     outputChannelInit.TIM_Pulse = dutycycle;
     outputChannelInit.TIM_OutputState = TIM_OutputState_Enable;
@@ -199,7 +193,9 @@ void SetDutycycleLeftMotor(int dutycycle)
 
 void SetDutycycleRightMotor(int dutycycle)
 {
-    TIM_OCInitTypeDef outputChannelInit = {0,};
+    TIM_OCInitTypeDef outputChannelInit;
+    TIM_OCStructInit(&outputChannelInit);
+
     outputChannelInit.TIM_OCMode = TIM_OCMode_PWM1;
     outputChannelInit.TIM_Pulse = dutycycle;
     outputChannelInit.TIM_OutputState = TIM_OutputState_Enable;
@@ -250,37 +246,6 @@ void DisableRightMotorEncoder(){
     NVIC_DisableIRQ(EXTI4_IRQn);
 }
 
-void EXTI4_IRQHandler(void){
-    if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Check if interrupt flag is set
-        EXTI_ClearITPendingBit(EXTI_Line4); //Clear interrupt flag
-
-        if (rightMotorPulseCounter >= rightMotorGoal){
-            SetDutycycleRightMotor(0);
-            rightMotorPulseCounter = 0;
-
-
-            if (leftRunning == 0 && fifo_size(&movements) != 0){
-                MoveSteps newGoals;
-                fifo_read(&movements, &newGoals);
-                leftMotorGoal = newGoals.leftSteps;
-                rightMotorGoal = newGoals.rightSteps;
-                if (leftMotorGoal != 0){
-                    SetDutycycleLeftMotor(PWM_Speed);
-                }
-                if (rightMotorGoal != 0){
-                    SetDutycycleRightMotor(PWM_Speed);
-                }
-            }
-            else{
-                leftRunning = 0;
-            }
-        }
-        else{
-
-            rightMotorPulseCounter++;
-        }
-	}
-}
 
 void InitializeLeftMotorEncoder()
 {
@@ -309,7 +274,7 @@ void InitializeLeftMotorEncoder()
 
     nvicStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
     nvicStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-    nvicStructure.NVIC_IRQChannelSubPriority = 0x01;
+    nvicStructure.NVIC_IRQChannelSubPriority = 0x00;
     nvicStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvicStructure);
 }
@@ -322,37 +287,4 @@ void DisableLeftMotorEncoder(){
     NVIC_DisableIRQ(EXTI9_5_IRQn);
 }
 
-void EXTI9_5_IRQHandler(void){
-    if (EXTI_GetITStatus(EXTI_Line5) != RESET) { //Check if interrupt flag is set
-        EXTI_ClearITPendingBit(EXTI_Line5); //Clear interrupt flag
-
-        if (leftMotorPulseCounter >= leftMotorGoal){
-            SetDutycycleLeftMotor(0);
-            leftMotorPulseCounter = 0;
-
-
-            if (rightRunning == 0 && fifo_size(&movements) != 0){
-                MoveSteps newGoals;
-                fifo_read(&movements, &newGoals);
-                leftMotorGoal = newGoals.leftSteps;
-                rightMotorGoal = newGoals.rightSteps;
-                if (leftMotorGoal != 0){
-                    SetDutycycleLeftMotor(PWM_Speed);
-                }
-                if (rightMotorGoal != 0){
-                    SetDutycycleRightMotor(PWM_Speed);
-                }
-            }
-            else{
-                leftRunning = 0;
-            }
-        }
-        else{
-
-
-            leftMotorPulseCounter++;
-        }
-
-	}
-}
 

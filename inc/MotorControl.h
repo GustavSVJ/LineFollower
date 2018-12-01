@@ -15,8 +15,17 @@ typedef struct {
     int speed;
 } MoveSteps;
 
+extern volatile int leftMotorPulseCounter;
+extern volatile int rightMotorPulseCounter;
+
+void SetDutycycleLeftMotor(int dutycycle);
+
+void SetDutycycleRightMotor(int dutycycle);
+
 extern char MoveTo(move_t *directions);
-extern void InitializeMotors();
+extern void InitializeMotors(uint16_t top, uint16_t prescaler);
+
+
 
 
 #endif /* MotorControl_H_ */
