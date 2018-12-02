@@ -1,40 +1,35 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "stm32f30x_conf.h"
 #include "stm32f30x.h"
 
-#include <stdio.h>
-#include <string.h>
-#include "stm32f30x_conf.h"
-
 #include "Uart.h"
+#include "UcamFunction.h"
+
 #include "MotorControl.h"
 #include "PID.h"
 
-char uart1_ReceiveBuffer[100];
-volatile char uart1_RxFlag = 0;
 
 int main(void){
 
+    //setup USB comm
     USB_Init(921600);
 
-    RegulatorRun();
+    //init delay functions delay_ms and delay100us
+    init_delay_timer();
 
-    /*
-
-    RegulatorSetRefs(40,40,0);
-
-    uint16_t i = 0;
-
+    //init ucam uart fifo
     uart_fifo_init(&uart_fifo, sizeof(uart_data_buffer), uart_data_buffer);
 
+    //init and activate ucam uart
     UART1_Init(921600);
     UART1_EnableInterrupt();
 
-    uint8_t tester[6] = {72, 69, 74, 60, 51, 31};
-    UART1_send_bytes(tester, 6);
-
+    //init and setup camera
     ucam_init();
 
-    */
+    
 
     while(1){
 
