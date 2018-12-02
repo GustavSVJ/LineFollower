@@ -13,6 +13,7 @@ char uart1_ReceiveBuffer[100];
 volatile char uart1_RxFlag = 0;
 
 int main(void){
+
     USB_Init(921600);
 
     RegulatorSetRefs(40,40,0);
@@ -24,12 +25,16 @@ int main(void){
     UART1_Init(921600);
     UART1_EnableInterrupt();
 
-    char buffer[50];
+    uint8_t tester[6] = {72, 69, 74, 60, 51, 31};
+    UART1_send_bytes(tester, 6);
+
+    ucam_init();
 
     while(1){
-        if (timer15_PIDFlag){
-            timer15_PIDFlag = 0;
 
+        if (timer15_PIDFlag){
+
+            timer15_PIDFlag = 0;
 
             if (rightMotorTotalPulses > 40000 || leftMotorTotalPulses > 40000){
                 RegulatorSetRefs(0,0,360);
@@ -45,36 +50,10 @@ int main(void){
                 RegulatorSetRefs(40,40,90);
             }
 
-
             RegulatorUpdate();
-
-    ucam_init();
-
-
         }
-
     }
 
     return 0;
-}
-/*********************************************************************/
 
-    while(1){
-        for (uint32_t i = 0; i < 0xfffff; i++);
-
-        if(uart_fifo_elements(&uart_fifo)>0){
-
-            char temp;
-            uart_fifo_read(&uart_fifo, &temp);
-
-            sprintf(buffer, "input: %c \r\n",temp);
-            USB_Putstr(buffer);
-
-        }
-        uint8_t tester[6] = {72, 69, 74, 60, 51, 31};
-        UART1_send_bytes(tester, 6);
-    }
-
-    return 0;
-}
-/*********************************************************************/
+} //end main
