@@ -1,3 +1,4 @@
+#include "stm32f30x_conf.h"
 #include "Uart.h"
 
 /****************************/
@@ -174,6 +175,15 @@ void UART1_Putstr(char str[]){
     }
 }
 
+void UART1_send_bytes(uint8_t *data, uint8_t no_bytes)
+{
+    for(uint8_t i = 0; i < no_bytes; i++){
+        USART_SendData(USART1, (uint16_t)data[i]);
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TXE)  == RESET){}
+    }
+}
+
+
 /******************************/
 /***      Interrupts        ***/
 /******************************/
@@ -269,5 +279,102 @@ void UART2_Putstr(char str[]){
     }
 
 }
+
+
+
+///////////////////////////////////////////////////////////
+
+
+
+
+void USART1_IRQHandler(){
+
+    if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET){
+
+        uint8_t rx = (uint8_t)USART_ReceiveData(USART1);
+        uart_fifo_write(&uart_fifo, &rx);
+
+        //clear flag
+        USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+    }
+}
+
+
+
+
+// ---------------- UART FIFO ---------------------- //
+
+//init fifo with buffer
+void uart_fifo_init(uart_fifo_t *fifo_in, uint8_t fifo_length, uint8_t *data){
+	fifo_in->head = 0;
+	fifo_in->tail = 0;
+	fifo_in->fifo_size = fifo_length;
+	fifo_in->data = data;
+}
+
+//read element from fifo
+int uart_fifo_read(uart_fifo_t *fifo_in, uint8_t *data_out){
+
+    //check for empty
+    if(fifo_in->head == fifo_in->tail){
+        return FIFO_EMPTY;
+    }
+
+    //retrieve data byte from fido
+	*data_out = fifo_in->data[fifo_in->tail];
+    fifo_in->tail++;
+
+	//check wrap-around
+    if(fifo_in->tail == fifo_in->fifo_size) {
+        fifo_in->tail = 0;
+    }
+
+    return FIFO_SUCCESS;
+}
+
+//write element to fifo
+int uart_fifo_write(uart_fifo_t *fifo_in, uint8_t *data_in){
+
+	// Check remaining elements in fifo
+	if((fifo_in->head + 1 == fifo_in->tail) || ((fifo_in->head + 1 == fifo_in->fifo_size) && (fifo_in->tail == 0))) {
+		return FIFO_FULL;
+    }
+
+    // Add data input to fifo
+    fifo_in->data[fifo_in->head] = *data_in;
+    fifo_in->head++; // increment the head
+
+    //check wrap-around
+    if(fifo_in->head == fifo_in->fifo_size) {
+        fifo_in->head = 0;
+    }
+
+    return FIFO_SUCCESS;
+}
+
+
+//get current number of elements from buffer
+int uart_fifo_elements(uart_fifo_t* fifo_in){
+    int temp_size = 0;
+
+	if (fifo_in->head > fifo_in->tail){
+		temp_size =  (fifo_in->head - fifo_in->tail);
+	}
+	else if (fifo_in->head < fifo_in->tail){
+		temp_size = fifo_in->fifo_size - fifo_in->tail + fifo_in->head;
+	}
+
+    return temp_size;
+}
+
+
+
+
+
+
+
+
+
+
 
 

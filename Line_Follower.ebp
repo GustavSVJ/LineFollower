@@ -98,6 +98,7 @@
 		<Unit filename="inc\stm32f30x_conf.h" />
 		<Unit filename="inc\system_stm32f30x.h" />
 		<Unit filename="inc\Uart.h" />
+		<Unit filename="inc\UcamFunction.h" />
 		<Unit filename="readme.txt" />
 		<Unit filename="SPL\inc\stm32f30x_adc.h" />
 		<Unit filename="SPL\inc\stm32f30x_can.h" />
@@ -208,13 +209,16 @@
 		<Unit filename="src\Uart.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\UcamFunction.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="stm32f302r8_flash.ld" />
 		<Unit filename="stm32f302r8_sram.ld" />
 		<Extensions>
 			<code_completion />
 			<debugger>
 				<target_debugging_settings target="Debug" active_interface="OpenOCD">
-					<debug_interface interface_id="OpenOCD" ip_address="localhost" ip_port="3333" path="C:\Program Files (x86)\OpenOCD\bin-x64" executable="openocd.exe" description="" dont_start_server="false" backoff_time="100" options="0" reg_filter="0" active_family="All" gdb_before_conn="" gdb_after_conn="">
+					<debug_interface interface_id="OpenOCD" ip_address="localhost" ip_port="3333" path="C:\Users\MDK\Dropbox\DTU - kandidat\E18\30021 - Digital Instrumentation\Debugger_openocd-0.10.0\bin-x64" executable="openocd.exe" description="" dont_start_server="false" backoff_time="100" options="0" reg_filter="0" active_family="All" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="All">
 							<option opt_id="ID_BOARD_CH" opt_value="" />
 							<option opt_id="ID_INTERFACE_CH" opt_value="stlink-v2-1" />
