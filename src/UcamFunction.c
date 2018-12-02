@@ -1,8 +1,7 @@
 #include "stm32f30x.h"
 #include "Uart.h"
 #include "UcamFunction.h"
-#include <stdlib.h>
-#include <stdio.h>
+
 
 
 /**************************CAMERA FUNCTIONS***************************/
@@ -33,67 +32,81 @@
 /*********************************************************************/
 
 
-void ucam_init(void){
+ucam_status ucam_init(void){
+
+    ucam_status status = UCAM_SUCCESS;
+
+    ucam_reset();
+
+    status = ucam_sync();
+
+    return status;
+}
 
 
-    uint8_t cam_din[10];
-    uint8_t status_cam = 0;
 
-    //sync to cam
-    while(status_cam == 0)
-    {
-        //initiate sync
-        ucam_sync();
 
-        //read bytes from ack
-        for(int i = 0; i < 6; i++){
-            uart_fifo_read(&uart_fifo, &cam_din[i]);
+
+
+ucam_status ucam_sync(void){
+
+    uint8_t sync_data[6] = {0xAA, 0x0D, 0x00, 0x00, 0x00, 0x00};    //sync package to/from cam
+    uint8_t ack_data[6]  = {0xAA, 0x0E, 0x0D, 0xDC, 0x00, 0x00};    //ack package to/from cam
+
+    ucam_status status = UCAM_SYNC_FAIL;                            //variables
+    uint8_t sync_tries = 60;
+    uint8_t fifo_data;
+
+    while(status == UCAM_SYNC_FAIL && sync_tries != 0){             //sync process, max 60 tries
+
+        while(uart_fifo_read(&uart_fifo, &fifo_data) != FIFO_EMPTY);//empty uart fifo if data is present
+        UART1_send_bytes(sync_data, 6);                             //send sync command
+        delay_ms(5 + (60 - sync_tries));                            //wait for response
+
+        if(uart_fifo_elements(&uart_fifo) >= 12){                   //check for response
+
+            ucam_status status_temp = UCAM_SUCCESS;                 //temp status
+
+            for(int i = 0; i < sizeof(ack_data); i++){              //check ack package from cam
+
+                uart_fifo_read(&uart_fifo, &fifo_data);             //read element from fifo
+
+                if(i == 3){                                         //compare to expected values
+                    ack_data[i] = fifo_data;
+                }
+                else{
+                    if(fifo_data != ack_data[i])
+                        status_temp = UCAM_ACK_FAIL;                //change temp status if wrong data
+                }
+            }
+
+            for(int i = 0; i < sizeof(sync_data); i++){             //check sync package from cam
+
+                uart_fifo_read(&uart_fifo, &fifo_data);             //read element from fifo
+
+                if(fifo_data != sync_data[i]){                      //compare to expected values
+                    status_temp = UCAM_ACK_FAIL;                    //change temp status if wrong data
+                }
+
+            }
+
+            if(status_temp == UCAM_SUCCESS){                        //packages ok check
+
+                UART1_send_bytes(ack_data, 6);                      //send ack for cam sync
+                status = status_temp;                               //update function status
+            }
         }
-
-        //decode bytes
-        if( (cam_din[0] == 0xAA) &&  (cam_din[1] == 0x0E) && (cam_din[0] == 0x0D) ){
-            status_cam = 1;
-        }
     }
-
-
-    while(uart_fifo_elements(&uart_fifo) < 6){
-    }
-
-    //read bytes from ack
-    for(int i = 0; i < 6; i++){
-        uart_fifo_read(&uart_fifo, &cam_din[i]);
-    }
-
-
-    status_cam = 1;
-
-}
+    return status;  //return final status
+} //end ucam_sync
 
 
 
 
 
-
-void ucam_sync(void){
-    //sync routine
-
-    uint8_t cam_data[6] = {0xAA, 0x0D, 0x00, 0x00, 0x00, 0x00};
-
-    while(uart_fifo_elements(&uart_fifo) < 6){
-        UART1_send_bytes(cam_data, 6);
-        for(int i = 0; i < 100000; i++);
-    }
-}
- /*
-
-void ucam_get_picture(){
-
-
-}
-*/
-
-
+// ************************************ //
+//  Ucam3 hardware reset functions      //
+// ------------------------------------ //
 
 void ucam_reset_pin_setup(void){
 
@@ -114,11 +127,22 @@ void ucam_reset_pin_setup(void){
 
 void ucam_reset(void){
 
-    //reset ucam3 with PC08, active low
+    //reset ucam3 with PC08, reset is active low
+    GPIOC->ODR &= ~(0x0001 << 8);
 
+    //wait for 200ms
+    delay_ms(200);
 
+    //activate camera again
+    GPIOC->ODR |= (0x0001 << 8);
 }
 
+
+
+
+// ************************************ //
+//  Software delay functions            //
+// ------------------------------------ //
 
 void delay_ms(uint32_t time_ms){
 
@@ -136,9 +160,8 @@ void init_delay_ms(void){
 }
 
 
-void SysTick_Handler(void)
-{
-    //check if delay timer is set, and down count if so
+void SysTick_Handler(void){
+    //check if delay timer is set, and count down if it is
     if(delay_timer > 0){
         delay_timer--;
     }
