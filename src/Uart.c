@@ -185,19 +185,13 @@ void UART1_send_bytes(uint8_t *data, uint8_t no_bytes)
 
 
 /******************************/
-/***      Interrupts        ***/
+/***   UART1 Interrupts     ***/
 /******************************/
 
 void UART1_EnableInterrupt(){
     USART1->CR1 |= 0x00000020; //Enable RXNE interrupt (Register not empty)
     NVIC_EnableIRQ(USART1_IRQn); //Enable global interrupt
 }
-
-
-
-///////////////////////////////////////////////////////////
-
-
 
 
 void USART1_IRQHandler(){
@@ -214,8 +208,9 @@ void USART1_IRQHandler(){
 
 
 
-
-// ---------------- UART FIFO ---------------------- //
+/******************************/
+/***      UART1 FIFO        ***/
+/******************************/
 
 //init fifo with buffer
 void uart_fifo_init(uart_fifo_t *fifo_in, uint8_t fifo_length, uint8_t *data){
@@ -279,15 +274,5 @@ int uart_fifo_elements(uart_fifo_t* fifo_in){
 
     return temp_size;
 }
-
-
-
-
-
-
-
-
-
-
 
 

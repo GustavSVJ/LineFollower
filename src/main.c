@@ -29,14 +29,19 @@ int main(void){
     //init and setup camera
     ucam_init();
 
-    
+    //declare image in memory
+    uint8_t image[4800];
 
     while(1){
 
+        //get picture from camera
+        ucam_get_picture(image);
+
+        //IMAGE processing
+
+        //Drive to location
         DriveTo(5000,0,40);
-        DriveTo(5000,90,40);
-        DriveTo(5000,-90,40);
-        break;
+
     }
 
     return 0;
