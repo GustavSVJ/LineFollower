@@ -6,50 +6,41 @@
 #include "MotorControl.h"
 #include "PID.h"
 
-
-
-/**************************CAMERA FUNCTIONS***************************/
-/*
-        COMMAND         ID      P1              P2              P3                      P4
-        ------------------------------------------------------------------------------------------------
-        INITIAL         0xAA01  0x00            Image format    RAW res                 JPEG res
-        GET PIC         0xAA04  Pic. type       0x00            0x00                    0x00
-        SNAPSHOT        0xAA05  Snapsh. type    Skip frame(Lb)  Skip frame(Hb)          0x00
-        SET PACK. SIZE  0xAA06  0x08            Pac.size (Lb)   Pac.size (Hb)           0x00
-
-        SET BAUD        0xAA07  1. div          2. div          0x00                    0x00
-        RESET           0xAA08  Reset type      0x00            0x00                    0xXX
-        DATA            0xAA0A  Data type       Length Byte 0   Length Byte 1           Length Byte 2
-        SYNC            0xAA0D  0x00            0x00            0x00                    0x00
-
-        ACK             0xAA0E  Command ID      ACK counter     0x00/Package ID Byte 0  0x00/Package ID Byte 1
-        NAK             0xAA0F  0x00            NACK counter    Error Number            0x00
-        Light           0xAA13  Freq. type      0x00            0x00                    0x00
-
-        Contrast/
-        Brightness/     0xAA14  Contrast(0-4)   Brightness(0-4) Exposure(0-4)           0x00
-        exposure
-
-        SLEEP           0xAA15  Timeout(0-255)  0x00            0x00                    0x00
-
-*/
-/*********************************************************************/
-
 char uart1_ReceiveBuffer[100];
 volatile char uart1_RxFlag = 0;
-
-
-
 
 int main(void){
     USB_Init(921600);
 
+    RegulatorSetRefs(40,40,0);
     RegulatorRun();
+    uint16_t i = 0;
+
+    char buffer[50];
 
     while(1){
         if (timer15_PIDFlag){
             timer15_PIDFlag = 0;
-            RegulatorUpdate(40,40);
+
+
+            if (rightMotorTotalPulses > 40000 || leftMotorTotalPulses > 40000){
+                RegulatorSetRefs(0,0,360);
+                break;
+            }
+            else if(rightMotorTotalPulses > 30000 || leftMotorTotalPulses > 30000){
+                RegulatorSetRefs(40,40,270);
+            }
+            else if(rightMotorTotalPulses > 20000 || leftMotorTotalPulses > 20000){
+                RegulatorSetRefs(40,40,180);
+            }
+            else if(rightMotorTotalPulses > 10000 || leftMotorTotalPulses > 10000){
+                RegulatorSetRefs(40,40,90);
+            }
+
+
+            RegulatorUpdate();
+
+
 
         }
 

@@ -91,7 +91,6 @@
 		<Unit filename="cmsis\core_cm4_simd.h" />
 		<Unit filename="cmsis\core_cmFunc.h" />
 		<Unit filename="cmsis\core_cmInstr.h" />
-		<Unit filename="inc\FIFO.h" />
 		<Unit filename="inc\MotorControl.h" />
 		<Unit filename="inc\PID.h" />
 		<Unit filename="inc\regulator.h" />
@@ -186,9 +185,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="SPL\src\stm32f30x_wwdg.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src\FIFO.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\main.c">

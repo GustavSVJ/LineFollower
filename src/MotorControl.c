@@ -1,45 +1,18 @@
 #include "MotorControl.h"
 #include "stm32f30x_conf.h" // STM32 config
-#include "Uart.h"
-#include "FIFO.h"
-#include <math.h>
-
-
-#define PWM_Speed 600
-#define MOVEMENT_QUEUE_LENGTH 100
-
-#define CM_PER_STEP 0.4684831150
-#define DEGRESS_PER_STEP 3.35526315812505
-
-#define round(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
-
-
-MoveSteps movementData[MOVEMENT_QUEUE_LENGTH];
-fifo_t movements;
-
-volatile int leftMotorPulseCounter = 0;
-volatile int rightMotorPulseCounter = 0;
-
 
 void InitializeMotorTimer(int topValue, int prescaler);
-
 void InitializeLeftMotor();
-void SetDutycycleLeftMotor(int dutycycle);
-
 void InitializeRightMotor();
-void SetDutycycleRightMotor(int dutycycle);
 
 void InitializeRightMotorEncoder();
+void InitializeLeftMotorEncoder();
+
 void EnableRightMotorEncoder();
 void DisableRightMotorEncoder();
 
-void InitializeLeftMotorEncoder();
 void EnableLeftMotorEncoder();
 void DisableLeftMotorEncoder();
-
-void InitializeMotors(uint16_t top, uint16_t prescaler);
-
-
 
 void InitializeMotors(uint16_t top, uint16_t prescaler){
 
@@ -53,84 +26,6 @@ void InitializeMotors(uint16_t top, uint16_t prescaler){
     EnableLeftMotorEncoder();
     EnableRightMotorEncoder();
 }
-/*
-char MoveTo(move_t *directions){
-    if (rightRunning || leftRunning){
-        return ConvertToSteps(directions);
-    }
-    else {
-        float angle = directions->angle;
-        float distance = directions->distance;
-
-        if (angle != 0){
-            if (angle < 0){
-                rightMotorGoal = round(angle / DEGRESS_PER_STEP);
-                leftMotorGoal = 0;
-            }
-            else {
-                leftMotorGoal = round(angle / DEGRESS_PER_STEP);
-                rightMotorGoal = 0;
-            }
-        }
-
-        if (angle != 0 && distance != 0){
-            MoveSteps newMovement;
-            int steps = round(distance / CM_PER_STEP);
-            newMovement.leftSteps = steps;
-            newMovement.rightSteps = steps;
-
-            fifo_write(&movements, newMovement);
-        }
-
-        if (angle == 0 && distance != 0){
-            int steps = round(distance / CM_PER_STEP);
-            leftMotorGoal = steps;
-            rightMotorGoal = steps;
-        }
-
-        if (leftMotorGoal != 0){
-            SetDutycycleLeftMotor(PWM_Speed);
-        }
-        if (rightMotorGoal != 0){
-            SetDutycycleRightMotor(PWM_Speed);
-        }
-
-    return 1;
-    }
-}
-
-int ConvertToSteps(move_t *directions){
-
-    int status = 0;
-    float angle = directions->angle;
-    float distance = directions->distance;
-
-    if (angle != 0){
-        MoveSteps newMovement;
-
-        if (angle < 0){
-            newMovement.rightSteps = round(angle / DEGRESS_PER_STEP);
-            newMovement.leftSteps = 0;
-        }
-        else {
-            newMovement.leftSteps = round(angle / DEGRESS_PER_STEP);
-            newMovement.rightSteps = 0;
-        }
-
-        status = fifo_write(&movements, newMovement);
-    }
-    if (distance != 0 && status == 0){
-        MoveSteps newMovement;
-        int steps = round(distance / CM_PER_STEP);
-        newMovement.leftSteps = steps;
-        newMovement.rightSteps = steps;
-
-        status = fifo_write(&movements, newMovement);
-    }
-
-    return status;
-}
-*/
 
 void InitializeMotorTimer(int topValue, int prescaler)
 {
@@ -238,11 +133,13 @@ void InitializeRightMotorEncoder()
     NVIC_Init(&nvicStructure);
 }
 
-void EnableRightMotorEncoder(){
+void EnableRightMotorEncoder()
+{
     NVIC_EnableIRQ(EXTI4_IRQn);
 }
 
-void DisableRightMotorEncoder(){
+void DisableRightMotorEncoder()
+{
     NVIC_DisableIRQ(EXTI4_IRQn);
 }
 

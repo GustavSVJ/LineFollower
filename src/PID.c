@@ -18,27 +18,49 @@ static double b0 = 6.48;
 static double b1 = -6.267;
 static double a1 = -1.0;
 
+static double head_b0 = 0.004457;
+static double head_b1 = 0.004438;
+static double head_a1 = 0.9779;
+
 volatile double rightSpeed = 0;
 volatile double leftSpeed = 0;
 
+volatile uint32_t leftMotorTotalPulses = 0;
+volatile uint32_t rightMotorTotalPulses = 0;
+
+uint16_t rightRef = 0;
+uint16_t leftRef = 0;
+int16_t headingRef = 0;
+
+
 statetype rightMotorRegul;
 statetype leftMotorRegul;
+statetype headingRegul;
 
-void RegulatorUpdate(uint16_t rightRef, uint16_t leftRef){
+void RegulatorSetRefs(uint16_t rightReference, uint16_t leftReference, int16_t headingReference){
+    rightRef = rightReference;
+    leftRef = leftReference;
+    headingRef = headingReference;
+}
 
-    static int j = 0;
+void RegulatorUpdate(){
 
-    if (j){
-        GPIO_SetBits(GPIOA, GPIO_Pin_8);
-        j = 0;
+    GPIO_SetBits(GPIOA, GPIO_Pin_8);
+
+    double heading = ((double)rightMotorTotalPulses - (double)leftMotorTotalPulses) * 3.157894737;
+
+    double e = headingRef - heading;
+    regul_out(&headingRegul, e, head_b0);
+    regul_update(&headingRegul, e, head_b1, head_a1);
+
+    if (headingRegul.u > 1){
+        headingRegul.u = 1;
     }
-    else{
-        GPIO_ResetBits(GPIOA, GPIO_Pin_8);
-        j = 1;
+    else if (headingRegul.u < -1){
+        headingRegul.u = -1;
     }
 
-
-    double e = rightRef - rightSpeed;
+    e = (rightRef * (headingRegul.u + 1)) - rightSpeed;
     regul_out(&rightMotorRegul, e, b0);
     regul_update(&rightMotorRegul, e, b1, a1);
 
@@ -53,7 +75,7 @@ void RegulatorUpdate(uint16_t rightRef, uint16_t leftRef){
         SetDutycycleRightMotor(output);
     }
 
-    e = leftRef - leftSpeed;
+    e = (leftRef * ((-1 * headingRegul.u) + 1)) - leftSpeed;
     regul_out(&leftMotorRegul, e, b0);
     regul_update(&leftMotorRegul, e, b1, a1);
 
@@ -67,6 +89,12 @@ void RegulatorUpdate(uint16_t rightRef, uint16_t leftRef){
         uint16_t output = (unsigned int)leftMotorRegul.u;
         SetDutycycleLeftMotor(output);
     }
+
+    GPIO_ResetBits(GPIOA, GPIO_Pin_8);
+
+    char buffer[50];
+    sprintf(buffer, "LeftTotal: %ld, RightTotal: %ld, Heading: %0.1lf, HeadingRegulatorOut: %0.2lf\n\r", leftMotorTotalPulses, rightMotorTotalPulses, heading, headingRegul.u);
+    USB_Putstr(buffer);
 
 }
 
@@ -174,6 +202,9 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 void EXTI9_5_IRQHandler(void){
     if (EXTI_GetITStatus(EXTI_Line5) != RESET) { //Check if interrupt flag is set
         EXTI_ClearITPendingBit(EXTI_Line5); //Clear interrupt flag
+
+        leftMotorTotalPulses++;
+
         if (leftTimeCounter > 100){
             leftSpeed = 0;
             leftTimeCounter = 1;
@@ -190,6 +221,8 @@ void EXTI9_5_IRQHandler(void){
 void EXTI4_IRQHandler(void){
     if (EXTI_GetITStatus(EXTI_Line4) != RESET) { //Check if interrupt flag is set
         EXTI_ClearITPendingBit(EXTI_Line4); //Clear interrupt flag
+
+        rightMotorTotalPulses++;
 
         if (rightTimeCounter > 100){
             rightSpeed = 0;
