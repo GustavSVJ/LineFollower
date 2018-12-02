@@ -1,4 +1,5 @@
 #include "stm32f30x_conf.h" // STM32 config
+#include "PID.h"
 #include "Uart.h"
 #include "Regulator.h"
 #include "MotorControl.h"
@@ -42,6 +43,65 @@ void RegulatorSetRefs(uint16_t rightReference, uint16_t leftReference, int16_t h
     leftRef = leftReference;
     headingRef = headingReference;
 }
+
+void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
+    headingRef += angle;
+
+    uint16_t running = 0;
+
+    if (angle < 0){
+        RegulatorSetRefs(0,speed,headingRef);
+        running = 1;
+    }
+    else if(angle > 0){
+        RegulatorSetRefs(speed,0,headingRef);
+        running = 1;
+    }
+
+    while(running){
+
+        if (timer15_PIDFlag){
+
+            timer15_PIDFlag = 0;
+            RegulatorUpdate();
+
+            double heading = ((double)rightMotorTotalPulses - (double)leftMotorTotalPulses) * 3.157894737;
+
+            if (headingRef - heading < 5 && headingRef - heading > -5){
+                running = 0;
+                SetDutycycleRightMotor(0);
+                SetDutycycleLeftMotor(0);
+            }
+        }
+    }
+
+    uint32_t leftMotorGoal = 0;
+    uint32_t rightMotorGoal = 0;
+
+    if (distance > 0){
+        running = 1;
+
+        leftMotorGoal = leftMotorTotalPulses + (distance / 0.46848);
+        rightMotorGoal = rightMotorTotalPulses + (distance / 0.46848);
+        RegulatorSetRefs(speed,speed,headingRef);
+    }
+
+    while(running){
+        if (timer15_PIDFlag){
+
+            timer15_PIDFlag = 0;
+            RegulatorUpdate();
+
+            if (leftMotorTotalPulses > leftMotorGoal || rightMotorTotalPulses > rightMotorGoal){
+                running = 0;
+                SetDutycycleRightMotor(0);
+                SetDutycycleLeftMotor(0);
+            }
+
+        }
+    }
+}
+
 
 void RegulatorUpdate(){
 
