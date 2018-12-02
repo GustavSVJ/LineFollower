@@ -27,16 +27,6 @@ void UART1_send_bytes(uint8_t *data, uint8_t no_bytes);
 
 
 /****************************/
-/*** UART2 Functions      ***/
-/****************************/
-void UART2_Putchar(char c);
-char UART2_Getchar();
-void UART2_Init(uint32_t baud);
-void UART2_Putstr(char str[]);
-
-
-
-/****************************/
 /*** UART2 FIFO      ***/
 /****************************/
 
