@@ -1,35 +1,39 @@
-
-#include "pathfinder.h"
 #include <stdio.h>
 #include <math.h>
 
+#include "pathfinder.h"
+
 path_status pathfinder(uint8_t *image, path_return_struct *path_return){
 
-
-
-    //find bottom
-    int8_t  bot_row = 65;
+    int8_t  bot_row = 64;
     int8_t  bot_start = -1;
     int8_t  bot_ender = -1;
     int8_t  bot_center= -1;
 
+    int8_t  mid_row = 0;
+    int8_t  mid_start = -1;
+    int8_t  mid_ender = -1;
+    int8_t  mid_center= -1;
+
+    int8_t  top_row = -5;
+    int8_t  top_start = -1;
+    int8_t  top_ender = -1;
+    int8_t  top_center= -1;
+
+
+    //find bottom
     while(bot_start == -1 && bot_ender == -1 && bot_row >= 0){
         bot_row = bot_row - 5;
         find_center_line(&bot_start, &bot_ender, &bot_center, image, bot_row);
     }
 
     //find top
-    int8_t  top_row = -4;
-    int8_t  top_start = -1;
-    int8_t  top_ender = -1;
-    int8_t  top_center= -1;
-
-    while(top_start == -1 && top_ender == -1 && top_row <= 60){
+    while(top_start == -1 && top_ender == -1 && top_row <= 59){
         top_row = top_row + 5;
         find_center_line(&top_start, &top_ender, &top_center, image, top_row);
     }
 
-    //check if something has been found
+    // **** check if something has been found
     if(bot_start == -1){
         path_return->no_operations = 1;
         path_return->rotate1 = FOV_W/2;
@@ -37,17 +41,12 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
         return PATH_NO_LINE;
     }
 
-    int16_t angle_1;
-    float dist_1;
-    anlge_dist_from_point(&angle_1, &dist_1, 60, 20);
+    // **** check if bottom reading is out of bound
+    if(bot_row == 59 && (bot_start == 0 || bot_ender == 79)){
 
-    /*
-    //check if bottom reading is out of bound
-    if(bot_row == 60 && (bot_start == 1 || bot_ender == 80)){
-
-        int16_t angle_1;
-        float dist_1;
-        //path_status anlge_dist_from_point(int16_t *angle, float *dist, uint8_t pix_h, uint8_t pix_w)
+        int16_t angle = 0;
+        float dist = 0;
+        anlge_dist_from_point(&angle, &dist, 60, bot_center);
 
         path_return->no_operations = 1;
         path_return->rotate1 = angle;
@@ -55,7 +54,194 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
 
         return PATH_SUCCESS;
     }
-    */
+
+
+    // **** normal line with or without curve
+    if(top_row == 0 && bot_row == 59){
+
+        //find mid center
+        mid_row = 30;
+        find_center_line(&mid_start, &mid_ender, &mid_center, image, mid_row);
+
+        //find angle and distance to top and mid
+        int16_t top_angle = 0, mid_angle = 0;
+        float top_dist = 0, mid_dist = 0;
+
+        anlge_dist_from_point(&top_angle, &top_dist, top_row, top_center);
+        anlge_dist_from_point(&mid_angle, &mid_dist, mid_row, mid_center);
+
+        path_return->no_operations = 1;
+        path_return->rotate1 = mid_angle;
+        path_return->dist1 = mid_dist;
+
+        //find angle between top and bottom
+        int16_t mid_top_angle = 0;
+        angle_two_points(&mid_top_angle, mid_angle, mid_dist, top_angle, top_dist);
+
+        if((mid_top_angle < -10) || (mid_top_angle > 10)){
+            path_return->no_operations = 2;
+            path_return->rotate2 = mid_top_angle;
+            path_return->dist2 = 0;
+        }
+
+        return PATH_SUCCESS;
+    }
+
+    // **** curve, cornor, or srub
+    if(top_row > 1 && bot_row == 60){
+
+        if(top_start == 1 || top_ender == 80){
+
+            int8_t  temp1_start = bot_start, temp2_start = -1;
+            int8_t  temp1_ender = bot_ender, temp2_ender = -1;
+            int8_t  temp1_center= bot_center, temp2_center= -1;
+
+            int dx_start = 0, dx_ender = 0;
+            int row = 0;
+
+            int8_t lines = (bot_row - top_row) / 5;
+
+            for(int8_t i = 0; i < lines+1; i++){
+
+                if(i != 0){
+                    temp1_start = temp2_start;
+                    temp1_ender = temp2_ender;
+                    temp1_center = temp2_center;
+                }
+
+                if(i != lines){
+                    row = bot_row - 5*(i+1);
+                }
+                else{
+                    row = top_row;
+                }
+
+                find_center_line(&temp2_start, &temp2_ender, &temp2_center, image, row);
+
+                dx_start = temp2_start - temp1_start;
+                dx_ender = temp2_ender - temp1_ender;
+
+                //corner left
+                if(top_start == 1 && dx_start < -15){
+
+                    //find angle and distance to top and mid
+                    int16_t top_angle = 0, mid_angle = 0;
+                    float top_dist = 0, mid_dist = 0;
+
+                    mid_row = row + 5;
+                    find_center_line(&mid_start, &mid_ender, &mid_center, image, mid_row);
+
+                    anlge_dist_from_point(&top_angle, &top_dist, top_row, top_start);
+                    anlge_dist_from_point(&mid_angle, &mid_dist, mid_row, mid_center);
+
+                    int16_t mid_top_angle = 0;
+                    angle_two_points(&mid_top_angle, mid_angle, mid_dist, top_angle, top_dist);
+
+                    path_return->no_operations = 2;
+                    path_return->rotate1 = mid_angle;
+                    path_return->dist1 = mid_dist;
+                    path_return->rotate2 = mid_top_angle;
+                    path_return->dist2 = 0;
+
+                    return PATH_SUCCESS;
+                }
+
+                //corner right
+                if(top_ender == 80 && dx_ender > 15){
+
+                    //find angle and distance to top and mid
+                    int16_t top_angle = 0, mid_angle = 0;
+                    float top_dist = 0, mid_dist = 0;
+
+                    mid_row = row + 5;
+                    find_center_line(&mid_start, &mid_ender, &mid_center, image, mid_row);
+
+                    anlge_dist_from_point(&top_angle, &top_dist, top_row, top_ender);
+                    anlge_dist_from_point(&mid_angle, &mid_dist, mid_row, mid_center);
+
+                    int16_t mid_top_angle = 0;
+                    angle_two_points(&mid_top_angle, mid_angle, mid_dist, top_angle, top_dist);
+
+                    path_return->no_operations = 2;
+                    path_return->rotate1 = mid_angle;
+                    path_return->dist1 = mid_dist;
+                    path_return->rotate2 = mid_top_angle;
+                    path_return->dist2 = 0;
+
+                    return PATH_SUCCESS;
+                }
+
+            }
+
+        }
+
+        //gentle curve
+        int16_t top_angle = 0, mid_angle = 0;
+        float top_dist = 0, mid_dist = 0;
+
+        mid_row = top_row + (bot_row - top_row)/2;
+        find_center_line(&mid_start, &mid_ender, &mid_center, image, mid_row);
+
+        anlge_dist_from_point(&top_angle, &top_dist, top_row, top_center);
+        anlge_dist_from_point(&mid_angle, &mid_dist, mid_row, mid_center);
+
+        int16_t mid_top_angle = 0;
+        angle_two_points(&mid_top_angle, mid_angle, mid_dist, top_angle, top_dist);
+
+        path_return->no_operations = 2;
+        path_return->rotate1 = mid_angle;
+        path_return->dist1 = mid_dist;
+        path_return->rotate2 = mid_top_angle;
+        path_return->dist2 = 0;
+
+        return PATH_SUCCESS;
+
+
+
+    }
+    //stub
+    else{
+        int16_t top_angle = 0, bot_angle = 0;
+        float top_dist = 0, bot_dist = 0;
+
+        anlge_dist_from_point(&top_angle, &top_dist, top_row, top_center);
+        anlge_dist_from_point(&bot_angle, &bot_dist, bot_row, bot_center);
+
+        int16_t top_bot_angle = 0;
+        angle_two_points(&top_bot_angle, top_angle, top_dist, bot_angle, bot_dist);
+
+        path_return->no_operations = 2;
+        path_return->rotate1 = top_angle;
+        path_return->dist1 = top_dist;
+        path_return->rotate2 = top_bot_angle;
+        path_return->dist2 = 0;
+
+        return PATH_SUCCESS;
+    }
+
+
+    //croosing segment
+    int16_t top_angle = 0, mid_angle = 0;
+    float top_dist = 0, mid_dist = 0;
+
+    mid_row = top_row + (bot_row - top_row)/2;
+    find_center_line(&mid_start, &mid_ender, &mid_center, image, mid_row);
+
+    anlge_dist_from_point(&top_angle, &top_dist, top_row, top_center);
+    anlge_dist_from_point(&mid_angle, &mid_dist, mid_row, mid_center);
+
+    int16_t mid_top_angle = 0;
+    angle_two_points(&mid_top_angle, mid_angle, mid_dist, top_angle, top_dist);
+
+    path_return->no_operations = 1;
+    path_return->rotate1 = mid_angle;
+    path_return->dist1 = mid_dist;
+
+    if((mid_top_angle < -10) || (mid_top_angle > 10)){
+        path_return->no_operations = 2;
+        path_return->rotate2 = mid_top_angle;
+        path_return->dist2 = 0;
+    }
 
     return PATH_SUCCESS;
 }
@@ -124,28 +310,40 @@ path_status find_center_line(int8_t *start, int8_t *ender, int8_t *center, uint8
 
 path_status anlge_dist_from_point(int16_t *angle, float *dist, uint8_t pix_h, uint8_t pix_w){
 
-    //double phi_ph = PHI_CAM + (((IM_ROWS/2.0) - (double)pix_h) / IM_ROWS) * FOV_H;
-    //double phi_pw = (((IM_COLS/2.0) - (double)pix_w) / IM_COLS) * FOV_W;
+    double phi_ph = PHI_CAM + (((IM_ROWS/2.0) - (double)pix_h) / IM_ROWS) * FOV_H;
+    double phi_pw = (((IM_COLS/2.0) - (double)pix_w) / IM_COLS) * FOV_W;
 
-
-    double x = 50;
-    double y = 0;
-    y = tan(x);
-
-
-    //double l_pc = tan(deg2rad(phi_ph)) * Z_CAM;
-    /*
+    double l_pc = tan(deg2rad(phi_ph)) * Z_CAM;
     double l_pr = X_CAM + l_pc;
-
 
     double hyp_p = sqrt(Z_CAM*Z_CAM + l_pc*l_pc);
     double w_p   = tan(deg2rad(phi_pw)) * hyp_p;
 
     double angle_d = rad2deg(atan2(w_p,l_pr));
     double dist_d  = sqrt(l_pr*l_pr + w_p*w_p);
-*/
-    //*dist = (float)dist_d;
-    //*angle = (int16_t)angle_d;
+
+    *dist = (float)dist_d;
+    *angle = (int16_t)angle_d;
+
+    return PATH_SUCCESS;
+}
+
+
+
+path_status angle_two_points(int16_t *angle_out, int16_t angle1, float dist1, int16_t angle2, float dist2){
+
+    double w1 = sin(deg2rad((double)angle1)) * dist1;
+    double d1 = cos(deg2rad((double)angle1)) * dist1;
+
+    double w2 = sin(deg2rad((double)angle2)) * dist2;
+    double d2 = cos(deg2rad((double)angle2)) * dist2;
+
+    double w3 = w2 - w1;
+    double d3 = d2 - d1;
+
+    double angle3 = rad2deg(atan2(w3, d3));
+
+    *angle_out = angle3 - angle1;
 
     return PATH_SUCCESS;
 }
@@ -155,7 +353,10 @@ double deg2rad(double deg){
     return (deg/180)*PI;
 }
 
+
+
 double rad2deg(double rad){
     return (rad/PI)*180;
 }
+
 

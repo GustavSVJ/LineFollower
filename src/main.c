@@ -32,6 +32,9 @@ int main(void){
     //init and setup camera
     ucam_init();
 
+    //setup motor
+    RegulatorRun();
+
     //declare image in memory
     uint8_t image[4800];
 
@@ -43,12 +46,28 @@ int main(void){
 
         //IMAGE processing
         path_return_struct path_return;
-        if(pathfinder(image, &path_return) == PATH_SUCCESS){
-            USB_Putstr("pathfinder success \n\r");
+        pathfinder(image, &path_return);
+
+/*
+        //drive to first operation
+        if(path_return.no_operations > 0){
+            //convert data
+            float temp = path_return.dist1 * 100;
+            uint16_t distance = (uint16_t)temp;
+            DriveTo(distance,path_return.rotate1,30);
         }
 
-        //Drive to location
-        DriveTo(5000,0,40);
+
+        if(path_return.no_operations > 1){
+            float temp = path_return.dist2 * 100;
+            uint16_t distance = (uint16_t)temp;
+            DriveTo(distance,path_return.rotate2,30);
+        }
+*/
+
+        if(path_return.no_operations > 0){
+            int i = 100;
+        }
 
     }
 
