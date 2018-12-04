@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "stm32f30x_conf.h"
 #include "stm32f30x.h"
@@ -33,6 +34,7 @@ int main(void){
 
     //declare image in memory
     uint8_t image[4800];
+
 
     while(1){
 

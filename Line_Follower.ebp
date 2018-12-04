@@ -20,6 +20,7 @@
 					<Add option="-ffunction-sections" />
 					<Add option="-O0" />
 					<Add option="-g3" />
+					<Add option="-lm" />
 				</Compiler>
 				<Cpp>
 					<Add option="-Wall" />
@@ -65,13 +66,14 @@
 		</Build>
 		<Device>
 			<Add option="$device=cortex-m4" />
+			<Add option="$lscript=./stm32f302r8_flash.ld" />
 			<Add option="$stack=0x0100" />
 			<Add option="$heap=0x0000" />
-			<Add option="$lscript=./stm32f302r8_flash.ld" />
 		</Device>
 		<Compiler>
 			<Add option="-mfloat-abi=soft" />
 			<Add option="-fno-strict-aliasing" />
+			<Add option="-lm" />
 			<Add symbol="STM32F302R8" />
 			<Add symbol="STM32F30X" />
 			<Add symbol="USE_STDPERIPH_DRIVER" />
@@ -82,8 +84,8 @@
 			<Add directory=".\SPL\src" />
 		</Compiler>
 		<Linker>
-			<Add option="-eb_start_files" />
 			<Add option="-eb_lib=n" />
+			<Add option="-eb_start_files" />
 		</Linker>
 		<Unit filename="cmsis\arm_common_tables.h" />
 		<Unit filename="cmsis\arm_math.h" />
