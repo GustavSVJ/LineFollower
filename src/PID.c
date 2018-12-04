@@ -245,6 +245,7 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 
         if (leftTimeCounter > 100){
             leftSpeed = 0;
+            SetDutycycleLeftMotor(0);
         }
         else{
             leftTimeCounter++;
@@ -252,6 +253,7 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 
         if (rightTimeCounter > 100){
             rightSpeed = 0;
+            SetDutycycleRightMotor(0);
         }
         else{
             rightTimeCounter++;
@@ -296,6 +298,5 @@ void EXTI4_IRQHandler(void){
         }
 	}
 }
-
 
 

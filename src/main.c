@@ -8,6 +8,8 @@
 #include "Uart.h"
 #include "UcamFunction.h"
 
+#include "pathfinder.h"
+
 #include "MotorControl.h"
 #include "PID.h"
 
@@ -32,15 +34,27 @@ int main(void){
     //init and setup camera
     ucam_init();
 
+    //setup motor
+    RegulatorRun();
+
     //declare image in memory
     uint8_t image[4800];
 
-    char buffer[10];
-
-    double y = tan(50);
 
     while(1){
 
+
+        DriveTo(50,0,20);
+        delay_ms(2000);
+        while(1){
+            DriveTo(50,0,20);
+            delay_ms(2000);
+            DriveTo(0,90,20);
+            delay_ms(2000);
+        }
+
+        for (uint32_t i = 0; i <0xffffff; i++);
+        /*
         //get picture from camera
         ucam_get_picture(image);
 
@@ -52,9 +66,34 @@ int main(void){
         break;
 
         //IMAGE processing
+        path_return_struct path_return;
+        pathfinder(image, &path_return);
 
-        //Drive to location
+        delay_ms(50);
 
+        //drive to first operation
+        if(path_return.no_operations > 0){
+            //convert data
+            float temp = path_return.dist1 * 100;
+            uint16_t distance = (uint16_t)temp;
+            DriveTo(distance,path_return.rotate1,30);
+        }
+
+        delay_ms(50);
+
+        if(path_return.no_operations > 1){
+            float temp = path_return.dist2 * 100;
+            uint16_t distance = (uint16_t)temp;
+            DriveTo(distance,path_return.rotate2,30);
+        }
+
+        delay_ms(50);
+
+        if(path_return.no_operations > 0){
+            int i = 100;
+        }
+
+        */
 
     }
 
