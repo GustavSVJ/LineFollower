@@ -52,7 +52,7 @@ void InitializeLeftMotor()
 
     gpioStructure.GPIO_Pin = GPIO_Pin_3;
     gpioStructure.GPIO_Mode = GPIO_Mode_AF;
-    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    gpioStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_Init(GPIOB, &gpioStructure);
 
 }
@@ -66,7 +66,7 @@ void InitializeRightMotor()
 
     gpioStructure.GPIO_Pin = GPIO_Pin_10;
     gpioStructure.GPIO_Mode = GPIO_Mode_AF;
-    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    gpioStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_Init(GPIOB, &gpioStructure);
 }
 
@@ -111,7 +111,7 @@ void InitializeRightMotorEncoder()
     gpioStructure.GPIO_Mode = GPIO_Mode_IN;
     gpioStructure.GPIO_OType = GPIO_OType_PP;
     gpioStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    gpioStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_Init(GPIOB, &gpioStructure);
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
@@ -153,7 +153,7 @@ void InitializeLeftMotorEncoder()
     gpioStructure.GPIO_Mode = GPIO_Mode_IN;
     gpioStructure.GPIO_OType = GPIO_OType_PP;
     gpioStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    gpioStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_Init(GPIOB, &gpioStructure);
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);

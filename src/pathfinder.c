@@ -22,13 +22,13 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
 
 
     //find bottom
-    while(bot_start == -1 && bot_ender == -1 && bot_row >= 0){
+    while(bot_start == -1 && bot_ender == -1 && bot_row >= 5){
         bot_row = bot_row - 5;
         find_center_line(&bot_start, &bot_ender, &bot_center, image, bot_row);
     }
 
     //find top
-    while(top_start == -1 && top_ender == -1 && top_row <= 59){
+    while(top_start == -1 && top_ender == -1 && top_row <= 54){
         top_row = top_row + 5;
         find_center_line(&top_start, &top_ender, &top_center, image, top_row);
     }

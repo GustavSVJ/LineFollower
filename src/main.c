@@ -19,7 +19,7 @@
 int main(void){
 
     //setup USB comm
-    USB_Init(19200);
+    USB_Init(921600);
 
     //init delay functions delay_ms and delay100us
     init_delay_timer();
@@ -43,27 +43,8 @@ int main(void){
 
     while(1){
 
-
-        DriveTo(50,0,20);
-        delay_ms(2000);
-        while(1){
-            DriveTo(50,0,20);
-            delay_ms(2000);
-            DriveTo(0,90,20);
-            delay_ms(2000);
-        }
-
-        for (uint32_t i = 0; i <0xffffff; i++);
-        /*
         //get picture from camera
         ucam_get_picture(image);
-
-        for (uint16_t i = 0; i < 4800; i++){
-            sprintf(buffer, "%u\r\n", image[i]);
-            USB_Putstr(buffer);
-        }
-
-        break;
 
         //IMAGE processing
         path_return_struct path_return;
@@ -77,25 +58,29 @@ int main(void){
             float temp = path_return.dist1 * 100;
             uint16_t distance = (uint16_t)temp;
             DriveTo(distance,path_return.rotate1,30);
+            delay_ms(1500);
         }
 
-        delay_ms(50);
+
 
         if(path_return.no_operations > 1){
             float temp = path_return.dist2 * 100;
             uint16_t distance = (uint16_t)temp;
             DriveTo(distance,path_return.rotate2,30);
+            delay_ms(1500);
         }
 
-        delay_ms(50);
+
 
         if(path_return.no_operations > 0){
             int i = 100;
         }
 
-        */
+
 
     }
+
+
 
     return 0;
 

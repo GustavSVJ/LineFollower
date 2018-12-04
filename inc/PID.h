@@ -2,8 +2,6 @@
 #define PID_H_
 
 extern volatile char timer15_PIDFlag;
-extern volatile uint32_t leftMotorTotalPulses;
-extern volatile uint32_t rightMotorTotalPulses;
 
 void RegulatorRun();
 void Timer15_InterruptEnable();
