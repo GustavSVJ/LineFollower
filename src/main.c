@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "stm32f30x_conf.h"
 #include "stm32f30x.h"
@@ -36,6 +37,7 @@ int main(void){
 
     char buffer[10];
 
+    double y = tan(50);
 
     while(1){
 
