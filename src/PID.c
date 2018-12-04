@@ -6,7 +6,8 @@
 
 #include <stdio.h>
 
-#define CM_PER_STEP 0.4684831150f
+#define CM_PER_STEP 0.4464368508f
+#define HEADING_FACTOR 1.413716695f
 
 void Timer15_Init(uint16_t top, uint16_t prescaler);
 void Timer15_InterruptEnable();
@@ -15,13 +16,13 @@ volatile char timer15_PIDFlag = 0;
 volatile uint16_t leftTimeCounter = 0;
 volatile uint16_t rightTimeCounter = 0;
 
-static double b0 = 6.48;
-static double b1 = -6.267;
+static double b0 = 6.785;
+static double b1 = -6.563;
 static double a1 = -1.0;
 
-static double head_b0 = 0.004457;
-static double head_b1 = 0.004438;
-static double head_a1 = 0.9779;
+static double head_b0 = 0.08202;
+static double head_b1 = 0.07894;
+static double head_a1 = 0.8799;
 
 volatile double rightSpeed = 0;
 volatile double leftSpeed = 0;
@@ -64,15 +65,16 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
 
             timer15_PIDFlag = 0;
             RegulatorUpdate();
-
-            double heading = ((double)rightMotorTotalPulses - (double)leftMotorTotalPulses) * 3.157894737;
-
-            if (headingRef - heading < 5 && headingRef - heading > -5){
-                running = 0;
-                SetDutycycleRightMotor(0);
-                SetDutycycleLeftMotor(0);
-            }
         }
+
+        double heading = ((double)rightMotorTotalPulses - (double)leftMotorTotalPulses) * HEADING_FACTOR;
+
+        if (headingRef - heading < 1 && headingRef - heading > -1){
+            running = 0;
+             SetDutycycleRightMotor(0);
+             SetDutycycleLeftMotor(0);
+        }
+
     }
 
     uint32_t leftMotorGoal = 0;
@@ -81,23 +83,23 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
     if (distance > 0){
         running = 1;
 
-        leftMotorGoal = leftMotorTotalPulses + (distance / 0.46848);
-        rightMotorGoal = rightMotorTotalPulses + (distance / 0.46848);
+        leftMotorGoal = leftMotorTotalPulses + (distance / CM_PER_STEP);
+        rightMotorGoal = rightMotorTotalPulses + (distance / CM_PER_STEP);
         RegulatorSetRefs(speed,speed,headingRef);
     }
 
     while(running){
+
         if (timer15_PIDFlag){
 
             timer15_PIDFlag = 0;
             RegulatorUpdate();
+        }
 
-            if (leftMotorTotalPulses > leftMotorGoal || rightMotorTotalPulses > rightMotorGoal){
-                running = 0;
-                SetDutycycleRightMotor(0);
-                SetDutycycleLeftMotor(0);
-            }
-
+        if (leftMotorTotalPulses > leftMotorGoal || rightMotorTotalPulses > rightMotorGoal){
+            running = 0;
+            SetDutycycleRightMotor(0);
+            SetDutycycleLeftMotor(0);
         }
     }
 }
@@ -107,7 +109,7 @@ void RegulatorUpdate(){
 
     GPIO_SetBits(GPIOA, GPIO_Pin_8);
 
-    double heading = ((double)rightMotorTotalPulses - (double)leftMotorTotalPulses) * 3.157894737;
+    double heading = ((double)rightMotorTotalPulses - (double)leftMotorTotalPulses) * HEADING_FACTOR;
 
     double e = headingRef - heading;
     regul_out(&headingRegul, e, head_b0);
@@ -153,7 +155,7 @@ void RegulatorUpdate(){
     GPIO_ResetBits(GPIOA, GPIO_Pin_8);
 
     char buffer[50];
-    sprintf(buffer, "LeftTotal: %ld, RightTotal: %ld, Heading: %0.1lf, HeadingRegulatorOut: %0.2lf\n\r", leftMotorTotalPulses, rightMotorTotalPulses, heading, headingRegul.u);
+    sprintf(buffer, "LeftTotal: %ld, RightTotal: %ld, Heading: %0.1lf, HeadingRegulatorOut: %0.2lf\r\n", leftMotorTotalPulses, rightMotorTotalPulses, heading, headingRegul.u);
     USB_Putstr(buffer);
 
 }
@@ -243,6 +245,7 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 
         if (leftTimeCounter > 100){
             leftSpeed = 0;
+            SetDutycycleLeftMotor(0);
         }
         else{
             leftTimeCounter++;
@@ -250,6 +253,7 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 
         if (rightTimeCounter > 100){
             rightSpeed = 0;
+            SetDutycycleRightMotor(0);
         }
         else{
             rightTimeCounter++;
@@ -294,6 +298,5 @@ void EXTI4_IRQHandler(void){
         }
 	}
 }
-
 
 
