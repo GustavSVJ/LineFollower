@@ -92,6 +92,7 @@
 		<Unit filename="cmsis\core_cmFunc.h" />
 		<Unit filename="cmsis\core_cmInstr.h" />
 		<Unit filename="inc\MotorControl.h" />
+		<Unit filename="inc\pathfinder.h" />
 		<Unit filename="inc\PID.h" />
 		<Unit filename="inc\regulator.h" />
 		<Unit filename="inc\stm32f30x.h" />
@@ -192,6 +193,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\MotorControl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pathfinder.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\PID.c">

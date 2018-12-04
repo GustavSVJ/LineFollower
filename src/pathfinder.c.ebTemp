@@ -1,0 +1,31 @@
+#include <math.h>
+#include "pathfinder.h"
+
+
+path_status pathfinder(uint8_t *image){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    return PATH_SUCCESS;
+}

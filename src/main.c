@@ -7,6 +7,8 @@
 #include "Uart.h"
 #include "UcamFunction.h"
 
+#include "pathfinder.h"
+
 #include "MotorControl.h"
 #include "PID.h"
 
@@ -38,6 +40,10 @@ int main(void){
         ucam_get_picture(image);
 
         //IMAGE processing
+        path_return_struct path_return;
+        if(pathfinder(image, &path_return) == PATH_SUCCESS){
+            USB_Putstr("pathfinder success \n\r");
+        }
 
         //Drive to location
         DriveTo(5000,0,40);
