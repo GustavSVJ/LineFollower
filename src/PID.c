@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 
-#define CM_PER_STEP 0.4464368508f
-#define HEADING_FACTOR 1.413716695f
+#define CM_PER_STEP 0.2425089067f
+#define HEADING_FACTOR 0.7679448714f
 
 void Timer15_Init(uint16_t top, uint16_t prescaler);
 void Timer15_InterruptEnable();
@@ -18,13 +18,13 @@ volatile char timer15_PIDFlag = 0;
 volatile uint16_t leftTimeCounter = 0;
 volatile uint16_t rightTimeCounter = 0;
 
-static double b0 = 6.785;
-static double b1 = -6.563;
+static double b0 = 10.85;
+static double b1 = -10.67;
 static double a1 = -1.0;
 
-static double head_b0 = 0.08202;
-static double head_b1 = 0.07894;
-static double head_a1 = 0.8799;
+static double head_b0 = 0.02194;
+static double head_b1 = 0.0217;
+static double head_a1 = 0.9641;
 
 volatile double rightSpeed = 0;
 volatile double leftSpeed = 0;
