@@ -3,14 +3,14 @@
 
 
 #define PI          3.14159265359
-#define X_CAM       0.049
-#define Z_CAM       0.105
+#define X_CAM       0.105
+#define Z_CAM       0.049
 #define PHI_CAM     35.2289
 #define FOV_W       44.8
 #define FOV_H       33.6
 #define IM_ROWS     60
 #define IM_COLS     80
-#define IM_THRES    87
+#define IM_THRES    50//87
 
 typedef struct{
     uint8_t no_operations;

@@ -213,9 +213,10 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
         path_return->no_operations = 2;
         path_return->rotate1 = top_angle;
         path_return->dist1 = top_dist;
+        /*
         path_return->rotate2 = top_bot_angle;
         path_return->dist2 = 0;
-
+        */
         return PATH_SUCCESS;
     }
 
@@ -236,13 +237,13 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
     path_return->no_operations = 1;
     path_return->rotate1 = mid_angle;
     path_return->dist1 = mid_dist;
-
+/*
     if((mid_top_angle < -10) || (mid_top_angle > 10)){
         path_return->no_operations = 2;
         path_return->rotate2 = mid_top_angle;
         path_return->dist2 = 0;
     }
-
+*/
     return PATH_SUCCESS;
 }
 

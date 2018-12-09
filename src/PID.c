@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #define CM_PER_STEP 0.2425089067f
-#define HEADING_FACTOR 0.7679448714f
+#define HEADING_FACTOR 0.7180783209f
 
 void Timer15_Init(uint16_t top, uint16_t prescaler);
 void Timer15_InterruptEnable();
@@ -61,12 +61,12 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
     uint16_t running = 0;
 
     if (angle < 0){
-        leftTurnGoal = angle / HEADING_FACTOR;
+        leftTurnGoal = (angle) / HEADING_FACTOR;
         RegulatorSetRefs(0,speed,angle);
         running = 1;
     }
     else if(angle > 0){
-        rightTurnGoal = angle / HEADING_FACTOR;
+        rightTurnGoal = (angle) / HEADING_FACTOR;
         RegulatorSetRefs(speed,0,angle);
         running = 1;
     }
@@ -76,7 +76,6 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
         if (timer15_PIDFlag){
 
             timer15_PIDFlag = 0;
-            HeadingUpdate();
             if (angle < 0){
                 LeftSpeedUpdate(0);
             }
@@ -93,10 +92,12 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
 
     }
 
-    delay_ms(300);
+    delay_ms(100);
 
     uint32_t leftMotorGoal = 0;
     uint32_t rightMotorGoal = 0;
+    headingRegul.u = 0;
+    headingRegul.dummy = 0;
 
     if (distance > 0){
         running = 1;

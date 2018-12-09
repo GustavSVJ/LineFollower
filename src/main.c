@@ -40,15 +40,18 @@ int main(void){
     //declare image in memory
     uint8_t image[4800];
 
-    DriveTo(50,0,40);
-    delay_ms(5000);
 
     while(1){
 
-        DriveTo(50,90,40);
-        delay_ms(5000);
-
-    /*
+        /*
+        for(int j = 0; j<4; j++){
+            DriveTo(0, 90, 10);
+            delay_ms(1500);
+            DriveTo(30, 0, 10);
+            delay_ms(1500);
+        }
+        return;
+        */
 
         //get picture from camera
         ucam_get_picture(image);
@@ -57,11 +60,10 @@ int main(void){
         path_return_struct path_return;
         pathfinder(image, &path_return);
 
-        delay_ms(50);
-
+        //delay_ms(50);
+/*
         //print image and data to putty
         char buffer[50];
-
         USB_Putstr("\nImage processing data:\r\n");
         sprintf(buffer,"no. op: %u\r\n",path_return.no_operations);
         USB_Putstr(buffer);
@@ -79,24 +81,33 @@ int main(void){
             sprintf(buffer,"%u\r\n",image[i]);
             USB_Putstr(buffer);
         }
-
+*/
 
         //drive to first operation
         if(path_return.no_operations > 0){
-            //convert data
-            float temp = path_return.dist1 * 100 / 2;
+            //float meter to uint centimeter
+            float temp = path_return.dist1 * 100 /2 ;
             uint16_t distance = (uint16_t)temp;
-            DriveTo(distance,path_return.rotate1,30);
-            delay_ms(1500);
+
+            int16_t angle_temp = 0;
+            if(path_return.rotate1 > 3 || path_return.rotate1 < -3)
+                angle_temp = path_return.rotate1;
+
+            DriveTo(distance, angle_temp, 10);
+            //delay_ms(500);
         }
 
 
-
         if(path_return.no_operations > 1){
-            float temp = path_return.dist2 * 100 / 2;
+            float temp = path_return.dist2 * 100 /2;
             uint16_t distance = (uint16_t)temp;
-            DriveTo(distance,path_return.rotate2,30);
-            delay_ms(1500);
+
+            int16_t angle_temp = 0;
+            if(path_return.rotate2 > 3 || path_return.rotate2 < -3)
+                angle_temp = path_return.rotate2;
+
+            DriveTo(distance, angle_temp, 10);
+            //delay_ms(500);
         }
 
 
@@ -104,7 +115,7 @@ int main(void){
         if(path_return.no_operations >= 0){
             int i = 100;
         }
-*/
+
 
 
     }
