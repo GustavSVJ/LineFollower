@@ -22,13 +22,13 @@ volatile char timer15_PIDFlag = 0;
 volatile uint16_t leftTimeCounter = 0;
 volatile uint16_t rightTimeCounter = 0;
 
-static double b0 = 10.85;
-static double b1 = -10.67;
+static double b0 = 6.785;
+static double b1 = -6.563;
 static double a1 = -1.0;
 
-static double head_b0 = 0.02194;
-static double head_b1 = 0.0217;
-static double head_a1 = 0.9641;
+static double head_b0 = 0.08202;
+static double head_b1 = 0.07894;
+static double head_a1 = 0.8799;
 
 volatile double rightSpeed = 0;
 volatile double leftSpeed = 0;
@@ -55,8 +55,6 @@ void RegulatorSetRefs(uint16_t rightReference, uint16_t leftReference, int16_t h
 }
 
 void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
-    headingRef = angle;
-
     leftMotorTotalPulses = 0;
     rightMotorTotalPulses = 0;
 
@@ -64,12 +62,12 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
 
     if (angle < 0){
         leftTurnGoal = angle / HEADING_FACTOR;
-        RegulatorSetRefs(0,speed,0);
+        RegulatorSetRefs(0,speed,angle);
         running = 1;
     }
     else if(angle > 0){
         rightTurnGoal = angle / HEADING_FACTOR;
-        RegulatorSetRefs(speed,0,0);
+        RegulatorSetRefs(speed,0,angle);
         running = 1;
     }
 
@@ -78,6 +76,7 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
         if (timer15_PIDFlag){
 
             timer15_PIDFlag = 0;
+            HeadingUpdate();
             if (angle < 0){
                 LeftSpeedUpdate(0);
             }
@@ -104,7 +103,7 @@ void DriveTo(uint16_t distance, int16_t angle, uint16_t speed){
 
         leftMotorGoal = leftMotorTotalPulses + (distance / CM_PER_STEP);
         rightMotorGoal = rightMotorTotalPulses + (distance / CM_PER_STEP);
-        RegulatorSetRefs(speed,speed,headingRef);
+        RegulatorSetRefs(speed,speed,angle);
     }
 
     while(running){
