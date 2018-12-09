@@ -40,13 +40,15 @@ int main(void){
     //declare image in memory
     uint8_t image[4800];
 
+    DriveTo(50,0,40);
+    delay_ms(5000);
 
     while(1){
+
+        DriveTo(50,90,40);
+        delay_ms(5000);
+
     /*
-        DriveTo(20,0,40);
-        DriveTo(40,0,40);
-        DriveTo(60,0,40);
-    */
 
         //get picture from camera
         ucam_get_picture(image);
@@ -56,11 +58,11 @@ int main(void){
         pathfinder(image, &path_return);
 
         delay_ms(50);
-/*
+
         //drive to first operation
         if(path_return.no_operations > 0){
             //convert data
-            float temp = path_return.dist1 * 100;
+            float temp = path_return.dist1 * 100 / 2;
             uint16_t distance = (uint16_t)temp;
             DriveTo(distance,path_return.rotate1,30);
             delay_ms(1500);
@@ -69,7 +71,7 @@ int main(void){
 
 
         if(path_return.no_operations > 1){
-            float temp = path_return.dist2 * 100;
+            float temp = path_return.dist2 * 100 / 2;
             uint16_t distance = (uint16_t)temp;
             DriveTo(distance,path_return.rotate2,30);
             delay_ms(1500);
