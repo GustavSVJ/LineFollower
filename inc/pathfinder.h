@@ -3,9 +3,9 @@
 
 
 #define PI          3.14159265359
-#define X_CAM       0.075
-#define Z_CAM       0.095
-#define PHI_CAM     42.0
+#define X_CAM       0.049
+#define Z_CAM       0.105
+#define PHI_CAM     35.2289
 #define FOV_W       44.8
 #define FOV_H       33.6
 #define IM_ROWS     60

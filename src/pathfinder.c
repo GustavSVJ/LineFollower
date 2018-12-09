@@ -88,9 +88,9 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
     }
 
     // **** curve, cornor, or srub
-    if(top_row > 1 && bot_row == 60){
+    if(top_row > 0 && bot_row == 59){
 
-        if(top_start == 1 || top_ender == 80){
+        if(top_start == 0 || top_ender == 79){
 
             int8_t  temp1_start = bot_start, temp2_start = -1;
             int8_t  temp1_ender = bot_ender, temp2_ender = -1;
@@ -122,7 +122,7 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
                 dx_ender = temp2_ender - temp1_ender;
 
                 //corner left
-                if(top_start == 1 && dx_start < -15){
+                if(top_start == 0 && dx_start < -15){
 
                     //find angle and distance to top and mid
                     int16_t top_angle = 0, mid_angle = 0;
@@ -147,7 +147,7 @@ path_status pathfinder(uint8_t *image, path_return_struct *path_return){
                 }
 
                 //corner right
-                if(top_ender == 80 && dx_ender > 15){
+                if(top_ender == 79 && dx_ender > 15){
 
                     //find angle and distance to top and mid
                     int16_t top_angle = 0, mid_angle = 0;
@@ -272,7 +272,7 @@ path_status find_center_line(int8_t *start, int8_t *ender, int8_t *center, uint8
 
             if( data < IM_THRES ){
                 thickness = thickness + 1;
-                if(thickness > 5)l_flag = 2;
+                if(thickness > 5) l_flag = 2;
             }
             else{
                 thickness = 0;
@@ -293,7 +293,7 @@ path_status find_center_line(int8_t *start, int8_t *ender, int8_t *center, uint8
     //
     if((c_start > 0) && (c_end < 0)){
         if(l_flag == 2){
-            c_end = 80;
+            c_end = 79;
         }
         else{
             c_start = -1;

@@ -52,6 +52,28 @@ int main(void){
 
         delay_ms(50);
 
+        //print image and data to putty
+        char buffer[50];
+
+        USB_Putstr("\nImage processing data:\r\n");
+        sprintf(buffer,"no. op: %u\r\n",path_return.no_operations);
+        USB_Putstr(buffer);
+        sprintf(buffer,"dist 1: %f\r\n",path_return.dist1);
+        USB_Putstr(buffer);
+        sprintf(buffer,"rota 1: %d\r\n",path_return.rotate1);
+        USB_Putstr(buffer);
+        sprintf(buffer,"dist 2: %f\r\n",path_return.dist2);
+        USB_Putstr(buffer);
+        sprintf(buffer,"rota 2: %d\r\n",path_return.rotate2);
+        USB_Putstr(buffer);
+
+        USB_Putstr("\nImage pixel data:\r\n");
+        for(int i = 0; i < 4800; i++){
+            sprintf(buffer,"%u\r\n",image[i]);
+            USB_Putstr(buffer);
+        }
+
+
         //drive to first operation
         if(path_return.no_operations > 0){
             //convert data
@@ -72,7 +94,7 @@ int main(void){
 
 
 
-        if(path_return.no_operations > 0){
+        if(path_return.no_operations >= 0){
             int i = 100;
         }
 
