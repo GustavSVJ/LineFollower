@@ -42,6 +42,11 @@ int main(void){
 
 
     while(1){
+    /*
+        DriveTo(20,0,40);
+        DriveTo(40,0,40);
+        DriveTo(60,0,40);
+    */
 
         //get picture from camera
         ucam_get_picture(image);
@@ -51,7 +56,7 @@ int main(void){
         pathfinder(image, &path_return);
 
         delay_ms(50);
-
+/*
         //drive to first operation
         if(path_return.no_operations > 0){
             //convert data
@@ -75,7 +80,7 @@ int main(void){
         if(path_return.no_operations > 0){
             int i = 100;
         }
-
+*/
 
 
     }
